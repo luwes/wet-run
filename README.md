@@ -1,6 +1,6 @@
 # Wet Run
 
-Minimal static server and test runner with a few dependencies instead of +100 like most others.
+Minimal static server and [TAP](https://testanything.org/) test runner with a few dependencies instead of +100 like most others.
 
 
 Serve static files in current dir on port 8080.

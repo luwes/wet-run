@@ -3,14 +3,20 @@
 Minimal static server and [TAP](https://testanything.org/) test runner with a few dependencies instead of +100 like most others.
 
 
-Serve static files in current dir on port 8080.
+Serve static files in current dir on port 8000.
 
 ```bash
-wet serve ./ -p 8080
+wet serve
 ```
 
-Run tests in the `test/` folder.
+CLI args: `--port`
+
+---
+
+Run tests in a real browser (playwright) in the `test/` folder.
 
 ```bash
-wet run test/
+wet run
 ```
+
+CLI args: `--port`, `--servedir`, `--browser`, `--channel`, `--no-headless`, `--timeout`

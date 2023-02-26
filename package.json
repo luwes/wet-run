@@ -1,0 +1,24 @@
+{
+  "name": "wet-run",
+  "version": "0.0.0",
+  "description": "Minimal static server and test runner",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "wet": "cli.js"
+  },
+  "files": [],
+  "scripts": {
+    "dev": "node --watch cli"
+  },
+  "repository": "luwes/wet-run",
+  "author": "Wesley Luyten <me@wesleyluyten.com> (https://wesleyluyten.com)",
+  "license": "MIT",
+  "homepage": "https://github.com/luwes/wet-run#readme",
+  "bugs": {
+    "url": "https://github.com/luwes/wet-run/issues"
+  },
+  "dependencies": {
+    "playwright-core": "^1.31.1"
+  }
+}

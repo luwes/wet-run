@@ -12,6 +12,18 @@ const options = {
   servedir: {
     type: 'string',
   },
+  browser: {
+    type: 'string',
+  },
+  channel: {
+    type: 'string',
+  },
+  'no-headless': {
+    type: 'boolean'
+  },
+  timeout: {
+    type: 'string',
+  },
 };
 
 const {

@@ -1,7 +1,7 @@
 import process from 'node:process';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { chromium } from 'playwright-core';
+import playwright from 'playwright-core';
 import { serve } from './server.js';
 
 const nodePath = path.resolve(process.argv[1]);
@@ -10,11 +10,29 @@ const isRunningDirectlyViaCLI = nodePath === modulePath;
 
 if (isRunningDirectlyViaCLI) run();
 
-export async function run({ dir = 'test/', port, servedir }) {
+export async function run(opts) {
+  const {
+    dir = 'test/',
+    browser = 'chromium',
+    channel = 'chrome',
+    timeout = 10000,
+    port,
+    servedir
+  } = opts;
+
+  const channels = {
+    chromium: channel
+  };
+
   try {
     const { url } = await serve({ dir: servedir, port });
-    const browser = await chromium.launch({ channel: 'chrome' });
-    const page = await browser.newPage();
+
+    const brow = await playwright[browser].launch({
+      channel: channels[browser],
+      headless: !opts['no-headless'],
+    });
+
+    const page = await brow.newPage();
 
     page.on('console', event => {
       const msg = event.text();
@@ -28,7 +46,7 @@ export async function run({ dir = 'test/', port, servedir }) {
     });
 
     await page.goto(`${url}/${dir}`);
-    await page.waitForTimeout(15000);
+    await page.waitForTimeout(+timeout);
 
     process.exit(2);
   } catch (e) {

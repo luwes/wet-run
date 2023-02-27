@@ -13,7 +13,7 @@ if (isRunningDirectlyViaCLI) serve();
 
 const toBool = [() => true, () => false];
 
-export async function serve({ dir = '.', port }) {
+export async function serve({ dir = '.', port, cors }) {
   port = await getFreePort(port);
   const url = `http://localhost:${port}`;
 
@@ -22,8 +22,17 @@ export async function serve({ dir = '.', port }) {
     const file = await prepareFile(dir, req.url);
     const statusCode = file.found ? 200 : 404;
     const mimeType = lookupMime(file.ext) || 'application/octet-stream';
+    const headers = {};
 
-    res.writeHead(statusCode, { 'Content-Type': mimeType });
+    if (cors) {
+      headers['Access-Control-Allow-Origin'] = '*';
+      headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Range';
+    }
+
+    res.writeHead(statusCode, {
+      'Content-Type': mimeType,
+      ...headers
+    });
 
     file.stream.on('error', () => res.end());
     file.stream.pipe(res);

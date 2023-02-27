@@ -9,6 +9,10 @@ const options = {
     type: 'string',
     short: 'p',
   },
+  cors: {
+    type: 'boolean',
+    short: 'C',
+  },
   servedir: {
     type: 'string',
   },

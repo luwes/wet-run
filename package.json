@@ -18,7 +18,7 @@
     "src"
   ],
   "scripts": {
-    "dev": "node --watch cli"
+    "dev": "node --watch src/cli"
   },
   "dependencies": {
     "playwright-core": "^1.31.1"

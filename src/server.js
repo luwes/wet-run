@@ -13,11 +13,32 @@ if (isRunningDirectlyViaCLI) serve();
 
 const toBool = [() => true, () => false];
 
-export async function serve({ dir = '.', port, cors }) {
+export async function serve(opts) {
+  let {
+    dir = '.',
+    port,
+    cors,
+    redirect,
+  } = opts;
+
   port = await getFreePort(port);
   const url = `http://localhost:${port}`;
 
   http.createServer(async (req, res) => {
+
+    if (redirect.length > 0) {
+      const STATIC_PATH = path.join(process.cwd(), dir);
+      const redirects = redirect.map(r => r.split(':'));
+      for (let [from, to] of redirects) {
+        const fromPath = path.join(STATIC_PATH, from);
+        const filePath = path.join(STATIC_PATH, req.url);
+        if (path.relative(fromPath, filePath) === '') {
+          res.writeHead(301, { 'Location': to });
+          res.end();
+          return;
+        }
+      }
+    }
 
     const file = await prepareFile(dir, req.url);
     const statusCode = file.found ? 200 : 404;
@@ -51,17 +72,19 @@ export async function serve({ dir = '.', port, cors }) {
 async function prepareFile(dir, url) {
   const STATIC_PATH = path.join(process.cwd(), dir);
 
-  const paths = [STATIC_PATH, url];
-  if (url.endsWith('/')) paths.push('index.html');
-  const filePath = path.join(...paths);
+  const dirPath = path.join(STATIC_PATH, url);
+  let filePath = dirPath;
+  const stat = await fs.promises.stat(filePath);
+
+  if (stat.isDirectory()) {
+    filePath = path.join(filePath, 'index.html');
+  }
 
   const pathTraversal = !filePath.startsWith(STATIC_PATH);
   const exists = await fs.promises.access(filePath).then(...toBool);
   const found = !pathTraversal && exists;
 
-  const dirPath = path.join(STATIC_PATH, url);
-
-  if (!found && await isDirectory(dirPath)) {
+  if (!found && stat.isDirectory()) {
     const stream = Readable.from(createDirIndex(url, dirPath));
     return { found: true, ext: 'html', stream };
   }
@@ -93,7 +116,7 @@ async function* createDirIndex(url, dirPath) {
   for (let file of files) {
     let filePath = path.join(url, file);
     const stat = await fs.promises.stat(path.join(dirPath, file));
-    if (stat.isDirectory()) filePath = path.normalize(path.join(filePath, path.sep));
+    if (stat.isDirectory()) filePath = path.join(filePath, path.sep);
     yield `
 <tr>
   <td>${lastModifiedToString(stat)}</td>
@@ -104,16 +127,6 @@ async function* createDirIndex(url, dirPath) {
   }
 
   yield `</table>`;
-}
-
-async function isDirectory(path) {
-  try {
-    const stats = await fs.promises.stat(path);
-    return stats.isDirectory();
-  } catch (err) {
-    // Handle error
-    console.error(err);
-  }
 }
 
 async function getFreePort(base = 8000) {

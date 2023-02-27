@@ -13,6 +13,10 @@ const options = {
     type: 'boolean',
     short: 'C',
   },
+  redirect: {
+    type: 'string',
+    multiple: true,
+  },
   servedir: {
     type: 'string',
   },

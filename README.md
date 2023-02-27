@@ -1,7 +1,7 @@
 # 💦 Wet Run
 
 Minimal static server and [TAP](https://testanything.org/) test runner 
-with a few dependencies instead of >100 like most others.
+with few dependencies.
 
 ```bash
 npm i -D wet-run

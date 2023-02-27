@@ -11,7 +11,6 @@ const isRunningDirectlyViaCLI = nodePath === modulePath;
 
 if (isRunningDirectlyViaCLI) serve();
 
-const toBool = [() => true, () => false];
 
 export async function serve(opts) {
   let {
@@ -29,9 +28,12 @@ export async function serve(opts) {
     if (redirect.length > 0) {
       const STATIC_PATH = path.join(process.cwd(), dir);
       const redirects = redirect.map(r => r.split(':'));
+
       for (let [from, to] of redirects) {
+
         const fromPath = path.join(STATIC_PATH, from);
         const filePath = path.join(STATIC_PATH, req.url);
+
         if (path.relative(fromPath, filePath) === '') {
           res.writeHead(301, { 'Location': to });
           res.end();
@@ -74,17 +76,17 @@ async function prepareFile(dir, url) {
 
   const dirPath = path.join(STATIC_PATH, url);
   let filePath = dirPath;
-  const stat = await fs.promises.stat(filePath);
+  const [, stat] = await resolvePair(fs.promises.stat(filePath));
 
-  if (stat.isDirectory()) {
+  if (stat?.isDirectory()) {
     filePath = path.join(filePath, 'index.html');
   }
 
   const pathTraversal = !filePath.startsWith(STATIC_PATH);
-  const exists = await fs.promises.access(filePath).then(...toBool);
+  const exists = !(await resolvePair(fs.promises.access(filePath)))[0];
   const found = !pathTraversal && exists;
 
-  if (!found && stat.isDirectory()) {
+  if (!found && stat?.isDirectory()) {
     const stream = Readable.from(createDirIndex(url, dirPath));
     return { found: true, ext: 'html', stream };
   }
@@ -116,7 +118,9 @@ async function* createDirIndex(url, dirPath) {
   for (let file of files) {
     let filePath = path.join(url, file);
     const stat = await fs.promises.stat(path.join(dirPath, file));
+
     if (stat.isDirectory()) filePath = path.join(filePath, path.sep);
+
     yield `
 <tr>
   <td>${lastModifiedToString(stat)}</td>
@@ -572,4 +576,13 @@ export function lookupMime(extn) {
   let tmp = ('' + extn).trim().toLowerCase();
   let idx = tmp.lastIndexOf('.');
   return mimes[!~idx ? tmp : tmp.substring(++idx)];
+}
+
+async function resolvePair(promiseLike) {
+  try {
+    const data = await promiseLike;
+    return [undefined, data];
+  } catch (error) {
+    return [error, undefined];
+  }
 }

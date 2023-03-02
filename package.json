@@ -18,6 +18,7 @@
     "src"
   ],
   "scripts": {
+    "test": "node src/cli run",
     "dev": "node --watch src/cli"
   },
   "dependencies": {

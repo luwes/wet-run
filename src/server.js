@@ -25,7 +25,7 @@ export async function serve(opts) {
 
   http.createServer(async (req, res) => {
 
-    if (redirect.length > 0) {
+    if (redirect?.length > 0) {
       const STATIC_PATH = path.join(process.cwd(), dir);
       const redirects = redirect.map(r => r.split(':'));
 

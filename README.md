@@ -15,14 +15,18 @@ Serve static files in current dir on port 8000.
 wet serve
 ```
 
-CLI args: `--port`, `--cors`, `--redirect`
+- Positional: `path`  
+- Flags: `--port`, `--cors`, `--redirect`
 
 ---
 
-Run tests in a real browser (playwright) in the `test/` folder.
+Run tests in a real browser (playwright) on the `test/` path.
 
 ```bash
 wet run
 ```
 
-extra CLI args: `--servedir`, `--browser`, `--channel`, `--no-headless`, `--timeout`
+- Positional: `path`  
+- Flags: `--port`, `--cors`, `--redirect`, `--servedir`, `--browser`, 
+`--channel`, `--no-headless`, `--timeout`
+

@@ -185,6 +185,10 @@ function lastModifiedToString(stat) {
           ('0' + t.getMinutes()).slice(-2));
 }
 
+/**
+ * MIT © Luke Edwards (https://lukeed.com)
+ * https://github.com/lukeed/mrmime
+ */
 const mimes = {
   "ez": "application/andrew-inset",
   "aw": "application/applixware",

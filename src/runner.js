@@ -1,5 +1,6 @@
 import process from 'node:process';
 import * as path from 'node:path';
+import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import playwright from 'playwright-core';
 import { serve } from './server.js';
@@ -10,15 +11,53 @@ const isRunningDirectlyViaCLI = nodePath === modulePath;
 
 if (isRunningDirectlyViaCLI) run();
 
-export async function run(opts) {
+const options = {
+  port: {
+    type: 'string',
+    short: 'p',
+  },
+  cors: {
+    type: 'boolean',
+    short: 'C',
+  },
+  redirect: {
+    type: 'string',
+    multiple: true,
+  },
+  servedir: {
+    type: 'string',
+  },
+  browser: {
+    type: 'string',
+  },
+  channel: {
+    type: 'string',
+  },
+  'no-headless': {
+    type: 'boolean'
+  },
+  timeout: {
+    type: 'string',
+  },
+};
+
+export async function run() {
   const {
-    dir = 'test/',
+    values,
+    positionals,
+  } = parseArgs({
+    options,
+    allowPositionals: true
+  });
+
+  const [, dir = 'test/'] = positionals;
+  const {
     browser = 'chromium',
     channel = 'chrome',
     timeout = 10000,
     port,
     servedir
-  } = opts;
+  } = values;
 
   const channels = {
     chromium: channel
@@ -29,7 +68,7 @@ export async function run(opts) {
 
     const brow = await playwright[browser].launch({
       channel: channels[browser],
-      headless: !opts['no-headless'],
+      headless: !values['no-headless'],
     });
 
     const page = await brow.newPage();

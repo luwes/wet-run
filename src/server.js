@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as http from 'node:http';
 import * as path from 'node:path';
 import process from 'node:process';
+import { parseArgs } from 'node:util';
 import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 
@@ -11,14 +12,36 @@ const isRunningDirectlyViaCLI = nodePath === modulePath;
 
 if (isRunningDirectlyViaCLI) serve();
 
+const options = {
+  port: {
+    type: 'string',
+    short: 'p',
+  },
+  cors: {
+    type: 'boolean',
+    short: 'C',
+  },
+  redirect: {
+    type: 'string',
+    multiple: true,
+  },
+};
 
-export async function serve(opts) {
+export async function serve() {
+  const {
+    values,
+    positionals,
+  } = parseArgs({
+    options,
+    allowPositionals: true
+  });
+
+  const [, dir = '.'] = positionals;
   let {
-    dir = '.',
     port,
     cors,
     redirect,
-  } = opts;
+  } = values;
 
   port = await getFreePort(port);
   const url = `http://localhost:${port}`;

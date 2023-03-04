@@ -5,41 +5,28 @@ import { serve } from './server.js';
 import { run } from './runner.js';
 
 const options = {
-  port: {
-    type: 'string',
-    short: 'p',
-  },
-  cors: {
+  help: {
     type: 'boolean',
-    short: 'C',
-  },
-  redirect: {
-    type: 'string',
-    multiple: true,
-  },
-  servedir: {
-    type: 'string',
-  },
-  browser: {
-    type: 'string',
-  },
-  channel: {
-    type: 'string',
-  },
-  'no-headless': {
-    type: 'boolean'
-  },
-  timeout: {
-    type: 'string',
+    short: 'h',
   },
 };
 
 const {
-  values,
-  positionals,
+  values: { help },
+  positionals
 } = parseArgs({ options, allowPositionals: true });
 
-const [task, dir] = positionals;
+if (help) {
+  console.log(`
+    Wet Run - Minimal static server and TAP test runner
 
-if (task === 'serve') serve({ dir, ...values });
-else if (task === 'run') run({ dir, ...values });
+    wet serve . --port 8000 --cors --redirect ./:./examples/
+
+    wet run ./test/test.html --servedir . --no-headless --timeout 5000
+  `);
+}
+
+const [task] = positionals;
+
+if (task === 'serve') serve();
+else if (task === 'run') run();

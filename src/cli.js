@@ -1,8 +1,8 @@
 #! /usr/bin/env node
 
 import { parseArgs } from 'node:util';
-import { serve } from './server.js';
-import { run } from './runner.js';
+import { cliServe } from './server.js';
+import { cliRun } from './runner.js';
 
 const options = {
   help: {
@@ -28,5 +28,6 @@ if (help) {
 
 const [task] = positionals;
 
-if (task === 'serve') serve();
-else if (task === 'run') run();
+if (task === 'serve') cliServe();
+else if (task === 'run') cliRun();
+

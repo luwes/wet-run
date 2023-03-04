@@ -9,39 +9,40 @@ const nodePath = path.resolve(process.argv[1]);
 const modulePath = path.resolve(fileURLToPath(import.meta.url));
 const isRunningDirectlyViaCLI = nodePath === modulePath;
 
-if (isRunningDirectlyViaCLI) run();
+if (isRunningDirectlyViaCLI) cliRun();
 
-const options = {
-  port: {
-    type: 'string',
-    short: 'p',
-  },
-  cors: {
-    type: 'boolean',
-    short: 'C',
-  },
-  redirect: {
-    type: 'string',
-    multiple: true,
-  },
-  servedir: {
-    type: 'string',
-  },
-  browser: {
-    type: 'string',
-  },
-  channel: {
-    type: 'string',
-  },
-  'no-headless': {
-    type: 'boolean'
-  },
-  timeout: {
-    type: 'string',
-  },
-};
+export async function cliRun() {
 
-export async function run() {
+  const options = {
+    port: {
+      type: 'string',
+      short: 'p',
+    },
+    cors: {
+      type: 'boolean',
+      short: 'C',
+    },
+    redirect: {
+      type: 'string',
+      multiple: true,
+    },
+    servedir: {
+      type: 'string',
+    },
+    browser: {
+      type: 'string',
+    },
+    channel: {
+      type: 'string',
+    },
+    'no-headless': {
+      type: 'boolean'
+    },
+    timeout: {
+      type: 'string',
+    },
+  };
+
   const {
     values,
     positionals,
@@ -50,25 +51,33 @@ export async function run() {
     allowPositionals: true
   });
 
-  const [, dir = 'test/'] = positionals;
+  const files = positionals.slice(1);
+  await run(files, values);
+}
+
+export async function run(files, opts) {
+
+  if (!files?.[0]) files = ['test/'];
+
   const {
     browser = 'chromium',
     channel = 'chrome',
     timeout = 10000,
     port,
+    cors,
     servedir
-  } = values;
+  } = opts;
 
   const channels = {
     chromium: channel
   };
 
   try {
-    const { url } = await serve({ dir: servedir, port });
+    const { url } = await serve(servedir, { port, cors });
 
     const brow = await playwright[browser].launch({
       channel: channels[browser],
-      headless: !values['no-headless'],
+      headless: !opts['no-headless'],
     });
 
     const page = await brow.newPage();
@@ -84,7 +93,7 @@ export async function run() {
       }
     });
 
-    await page.goto(`${url}/${dir}`);
+    await Promise.all(files.map(file => page.goto(`${url}/${file}`)));
     await page.waitForTimeout(+timeout);
 
     process.exit(2);

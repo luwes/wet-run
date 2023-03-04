@@ -10,24 +10,25 @@ const nodePath = path.resolve(process.argv[1]);
 const modulePath = path.resolve(fileURLToPath(import.meta.url));
 const isRunningDirectlyViaCLI = nodePath === modulePath;
 
-if (isRunningDirectlyViaCLI) serve();
+if (isRunningDirectlyViaCLI) cliServe();
 
-const options = {
-  port: {
-    type: 'string',
-    short: 'p',
-  },
-  cors: {
-    type: 'boolean',
-    short: 'C',
-  },
-  redirect: {
-    type: 'string',
-    multiple: true,
-  },
-};
+export async function cliServe() {
 
-export async function serve() {
+  const options = {
+    port: {
+      type: 'string',
+      short: 'p',
+    },
+    cors: {
+      type: 'boolean',
+      short: 'C',
+    },
+    redirect: {
+      type: 'string',
+      multiple: true,
+    },
+  };
+
   const {
     values,
     positionals,
@@ -36,12 +37,17 @@ export async function serve() {
     allowPositionals: true
   });
 
-  const [, dir = '.'] = positionals;
+  const [, dir] = positionals;
+  await serve(dir, values);
+}
+
+export async function serve(dir = '.', opts) {
+
   let {
     port,
     cors,
     redirect,
-  } = values;
+  } = opts;
 
   port = await getFreePort(port);
   const url = `http://localhost:${port}`;

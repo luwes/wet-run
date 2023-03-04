@@ -3,6 +3,7 @@
 import { parseArgs } from 'node:util';
 import { cliServe } from './server.js';
 import { cliRun } from './runner.js';
+import { cliRelease } from './release.js';
 
 const options = {
   help: {
@@ -14,7 +15,7 @@ const options = {
 const {
   values: { help },
   positionals
-} = parseArgs({ options, allowPositionals: true });
+} = parseArgs({ options, strict: false, allowPositionals: true });
 
 if (help) {
   console.log(`
@@ -30,4 +31,4 @@ const [task] = positionals;
 
 if (task === 'serve') cliServe();
 else if (task === 'run') cliRun();
-
+else if (task === 'release') cliRelease();

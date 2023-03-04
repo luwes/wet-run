@@ -1,6 +1,6 @@
 {
   "name": "wet-run",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Minimal static server and TAP test runner",
   "repository": "luwes/wet-run",
   "author": "Wesley Luyten <me@wesleyluyten.com> (https://wesleyluyten.com)",

@@ -19,11 +19,13 @@ const {
 
 if (help) {
   console.log(`
-    Wet Run - Minimal static server and TAP test runner
+    Wet Run - Minimal static server, TAP test runner and conventional release flow
 
     wet serve . --port 8000 --cors --redirect ./:./examples/
 
     wet run ./test/test.html --servedir . --no-headless --timeout 5000
+
+    wet release patch --changelog --github-release
   `);
 }
 

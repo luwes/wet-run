@@ -1,3 +1,12 @@
+## [0.0.7](https://github.com/luwes/wet-run/compare/v0.0.6...v0.0.7) (2023-03-04)
+
+
+### Bug Fixes
+
+* add release task docs ([840563b](https://github.com/luwes/wet-run/commit/840563b0aade90201eac130144185a7db5c3b6c6))
+
+
+
 ## [0.0.6](https://github.com/luwes/wet-run/compare/v0.0.5...v0.0.6) (2023-03-04)
 
 

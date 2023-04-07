@@ -1,3 +1,12 @@
+## [0.0.8](https://github.com/luwes/wet-run/compare/v0.0.7...v0.0.8) (2023-04-07)
+
+
+### Bug Fixes
+
+* support for multiple test files ([88e978f](https://github.com/luwes/wet-run/commit/88e978faf96daf1ebcf93cc39f679450933a54b0))
+
+
+
 ## [0.0.7](https://github.com/luwes/wet-run/compare/v0.0.6...v0.0.7) (2023-03-04)
 
 

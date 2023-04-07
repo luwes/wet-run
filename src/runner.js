@@ -88,12 +88,16 @@ export async function run(files, opts) {
 
       const match = msg.match(/^# fail +(\d+)$/);
       if (match) {
-        if (match[1] == 0) process.exit(0);
-        else process.exit(1);
+        if (match[1] == 0) {
+          if (files.length === 0) process.exit(0);
+          else page.goto(`${url}/${files.shift()}`);
+        } else {
+          process.exit(1);
+        }
       }
     });
 
-    await Promise.all(files.map(file => page.goto(`${url}/${file}`)));
+    await page.goto(`${url}/${files.shift()}`);
     await page.waitForTimeout(+timeout);
 
     process.exit(2);

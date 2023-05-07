@@ -1,3 +1,12 @@
+# [0.1.0](https://github.com/luwes/wet-run/compare/v0.0.8...v0.1.0) (2023-05-07)
+
+
+### Features
+
+* add compression to response ([331934c](https://github.com/luwes/wet-run/commit/331934c5fbacb6b23a91cbf1f80aae77394c2e24))
+
+
+
 ## [0.0.8](https://github.com/luwes/wet-run/compare/v0.0.7...v0.0.8) (2023-04-07)
 
 

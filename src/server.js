@@ -1,9 +1,10 @@
 import * as fs from 'node:fs';
 import * as http from 'node:http';
 import * as path from 'node:path';
+import * as zlib from 'node:zlib';
 import process from 'node:process';
 import { parseArgs } from 'node:util';
-import { Readable } from 'node:stream';
+import { Readable, pipeline } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 
 const nodePath = path.resolve(process.argv[1]);
@@ -74,20 +75,52 @@ export async function serve(dir = '.', opts) {
     const file = await prepareFile(dir, req.url);
     const statusCode = file.found ? 200 : 404;
     const mimeType = lookupMime(file.ext) || 'application/octet-stream';
-    const headers = {};
 
-    if (cors) {
-      headers['Access-Control-Allow-Origin'] = '*';
-      headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Range';
+    let acceptEncoding = req.headers['accept-encoding'];
+    if (!acceptEncoding) {
+      acceptEncoding = '';
     }
 
-    res.writeHead(statusCode, {
-      'Content-Type': mimeType,
-      ...headers
-    });
+    res.setHeader('Vary', 'Accept-Encoding');
+    res.setHeader('Content-Type', mimeType);
 
-    file.stream.on('error', () => res.end());
-    file.stream.pipe(res);
+    if (cors) {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Range');
+    }
+
+    const onError = (err) => {
+      if (err) {
+        // If an error occurs, there's not much we can do because
+        // the server has already sent the 200 response code and
+        // some amount of data has already been sent to the client.
+        // The best we can do is terminate the response immediately
+        // and log the error.
+        res.end();
+        console.error('An error occurred:', err);
+      }
+    };
+
+    if (/\bbr\b/.test(acceptEncoding)) {
+
+      res.writeHead(statusCode, { 'Content-Encoding': 'br' });
+      pipeline(file.stream, zlib.createBrotliCompress(), res, onError);
+
+    } else if (/\bgzip\b/.test(acceptEncoding)) {
+
+      res.writeHead(statusCode, { 'Content-Encoding': 'gzip' });
+      pipeline(file.stream, zlib.createGzip(), res, onError);
+
+    } else if (/\bdeflate\b/.test(acceptEncoding)) {
+
+      res.writeHead(statusCode, { 'Content-Encoding': 'deflate' });
+      pipeline(file.stream, zlib.createInflate(), res, onError);
+
+    } else {
+
+      res.writeHead(statusCode);
+      pipeline(file.stream, res, onError);
+    }
 
     console.log(`${req.method} ${req.url} ${statusCode}`);
   }).listen(port);

@@ -1,3 +1,12 @@
+# [0.2.0](https://github.com/luwes/wet-run/compare/v0.1.0...v0.2.0) (2023-05-20)
+
+
+### Features
+
+* add .eslintrc.json to dist ([0550f36](https://github.com/luwes/wet-run/commit/0550f36f91948127492d1cc329e61389e19cdc75))
+
+
+
 # [0.1.0](https://github.com/luwes/wet-run/compare/v0.0.8...v0.1.0) (2023-05-07)
 
 

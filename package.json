@@ -15,9 +15,11 @@
     "wet": "src/cli.js"
   },
   "files": [
-    "src"
+    "src",
+    ".eslintrc.json"
   ],
   "scripts": {
+    "lint": "npx eslint src/*.js -c .eslintrc.json",
     "test": "node src/cli run",
     "dev": "node --watch src/cli"
   },

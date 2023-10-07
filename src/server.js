@@ -146,11 +146,17 @@ async function prepareFile(dir, url) {
 
   const pathTraversal = !filePath.startsWith(STATIC_PATH);
   const exists = !(await resolvePair(fs.promises.access(filePath)))[0];
-  const found = !pathTraversal && exists;
+  let found = !pathTraversal && exists;
 
   if (!found && stat?.isDirectory()) {
     const stream = Readable.from(createDirIndex(url, dirPath));
     return { found: true, ext: 'html', stream };
+  }
+
+  if (!found && filePath.endsWith('favicon.ico')) {
+    const dirname = path.dirname(fileURLToPath(import.meta.url));
+    filePath = `${dirname}/favicon.ico`;
+    found = true;
   }
 
   const streamPath = found ? filePath : STATIC_PATH + '/404.html';

@@ -17,6 +17,12 @@ if (isRunningDirectlyViaCLI) cliRelease();
 export async function cliRelease() {
 
   const options = {
+    preid: {
+      type: 'string'
+    },
+    tag: {
+      type: 'string'
+    },
     changelog: {
       type: 'boolean',
     },
@@ -44,8 +50,10 @@ export async function cliRelease() {
 }
 
 export async function release(bump = 'conventional', opts) {
+  console.log(`Creating a "${bump}" release!`);
 
   const dryRun = opts['dry-run'] ? '--dry-run' : '';
+  let { preid, tag } = opts;
 
   if (bump === 'conventional') {
     bump = await cmd(`
@@ -54,8 +62,14 @@ export async function release(bump = 'conventional', opts) {
           -c 'conventional-recommended-bump -p angular'
     `, opts);
   }
+  // Short hand for canary and beta releases.
+  else if (['canary', 'beta'].includes(bump)) {
+    preid ||= bump;
+    tag ||= bump;
+    bump = 'prerelease';
+  }
 
-  console.log(`Creating a "${bump}" release!`);
+  if (preid) bump += ` --preid ${preid}`;
 
   const version = await cmd(`npm --no-git-tag-version version ${bump}`, cmd);
   console.log(version);
@@ -83,8 +97,10 @@ export async function release(bump = 'conventional', opts) {
     await cmd(`npx conventional-github-releaser -p angular`, opts);
   }
 
+  tag = tag ? `--tag ${tag}` : '';
+
   // Requires NODE_AUTH_TOKEN env variable
-  await cmd(`npm publish ${dryRun}`, opts);
+  await cmd(`npm publish ${tag} ${dryRun}`, opts);
 }
 
 async function cmd(command, opts) {

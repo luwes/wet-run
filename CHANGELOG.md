@@ -1,3 +1,13 @@
+## [0.2.1-canary.0](https://github.com/luwes/wet-run/compare/v0.2.0...v0.2.1-canary.0) (2023-10-08)
+
+
+### Features
+
+* add `--preid`, `--tag` and canary|beta alias ([eb560eb](https://github.com/luwes/wet-run/commit/eb560eb41e53f0b5aa419743a9aa454a5efd820a))
+* add default favicon for test server ([2578fb6](https://github.com/luwes/wet-run/commit/2578fb61efd56df0f2e302bcd9248190c5fcf4a2))
+
+
+
 # [0.2.0](https://github.com/luwes/wet-run/compare/v0.1.0...v0.2.0) (2023-05-20)
 
 

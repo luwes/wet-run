@@ -1,3 +1,13 @@
+## [0.2.1-beta.0](https://github.com/luwes/wet-run/compare/v0.2.2-canary.0...v0.2.1-beta.0) (2023-10-08)
+
+
+### Bug Fixes
+
+* canary Git commits ([63596f8](https://github.com/luwes/wet-run/commit/63596f85e8451a7389276dc6ebecdfaf4832eabb))
+* canary, pre-release issues ([1094d6b](https://github.com/luwes/wet-run/commit/1094d6bbcd9a31495324f1be0d31e459a644ecaf))
+
+
+
 ## [0.2.1-canary.0](https://github.com/luwes/wet-run/compare/v0.2.0...v0.2.1-canary.0) (2023-10-08)
 
 

@@ -17,7 +17,7 @@ Serve static files in current dir on port 8000.
 wet serve
 ```
 
-- Positional: `path`  
+- Positional: `<path>`  
 - Flags: `--port`, `--cors`, `--redirect`
 
 ## Test Run
@@ -28,7 +28,7 @@ Run tests in a real browser (playwright) on the `test/` path.
 wet run
 ```
 
-- Positional: `path`  
+- Positional: `<path>`  
 - Flags: `--port`, `--cors`, `--redirect`, `--servedir`, `--browser`, 
 `--channel`, `--no-headless`, `--timeout`
 
@@ -40,8 +40,8 @@ Create a new patch release with a conventional changelog and Github release.
 wet release patch --changelog --github-release
 ```
 
-- Positional: `[<newversion> | major | minor | patch | canary | beta | premajor | preminor | prepatch | prerelease]`   
-- Flags: `--preid`, `--tag`, `--changelog`, `--github-release`, `--dry-run`, `--verbose`  
+- Positional: `[<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease | from-git]`   
+- Flags: `--pre-release`, `--preid`, `--tag`, `--changelog`, `--github-release`, `--dry-run`, `--verbose`  
 
 ### Continuous deployment (CD)
 

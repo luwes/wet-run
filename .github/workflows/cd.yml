@@ -6,7 +6,7 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
-      version_type:
+      version:
         type: choice
         required: true
         description: Version
@@ -15,6 +15,13 @@ on:
         - patch
         - minor
         - major
+        - prerelease
+      pre_release:
+        type: choice
+        required: false
+        description: Pre-release
+        options:
+        -
         - canary
         - beta
 
@@ -39,4 +46,4 @@ jobs:
       - run: npm install
       - run: npm test
       - run: npm link # consumers should use npm link wet-run or below npx wet-run ...
-      - run: wet release ${{ inputs.version_type }} --changelog --github-release
+      - run: wet release ${{ inputs.version }} --pre-release ${{ inputs.pre_release }} --changelog --github-release --verbose

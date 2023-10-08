@@ -17,6 +17,9 @@ if (isRunningDirectlyViaCLI) cliRelease();
 export async function cliRelease() {
 
   const options = {
+    'pre-release': {
+      type: 'string'
+    },
     preid: {
       type: 'string'
     },
@@ -53,6 +56,7 @@ export async function release(bump = 'conventional', opts) {
   console.log(`Creating a "${bump}" release!`);
 
   const dryRun = opts['dry-run'] ? '--dry-run' : '';
+  const preRelease = opts['pre-release'];
   let { preid, tag } = opts;
 
   if (bump === 'conventional') {
@@ -62,11 +66,14 @@ export async function release(bump = 'conventional', opts) {
           -c 'conventional-recommended-bump -p angular'
     `, opts);
   }
-  // Short hand for canary and beta releases.
-  else if (['canary', 'beta'].includes(bump)) {
-    preid ||= bump;
-    tag ||= bump;
-    bump = 'prerelease';
+
+  if (preRelease) {
+    preid ||= preRelease;
+    tag ||= preRelease;
+
+    if (['patch', 'minor', 'major'].includes(bump)) {
+      bump = `pre${bump}`;
+    }
   }
 
   if (preid) bump += ` --preid ${preid}`;
@@ -74,7 +81,8 @@ export async function release(bump = 'conventional', opts) {
   const version = await cmd(`npm --no-git-tag-version version ${bump}`, cmd);
   console.log(version);
 
-  if (opts.changelog) {
+  // Turn off changelogs for a canary.
+  if (opts.changelog && preRelease !== 'canary') {
     const exists = !(await resolvePair(fs.promises.access('CHANGELOG.md')))[0];
 
     // https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-cli#quick-start
@@ -91,7 +99,8 @@ export async function release(bump = 'conventional', opts) {
   await cmd(`npm --force --allow-same-version version ${version} -m "chore(release): %s"`, opts);
   await cmd(`git push --follow-tags ${dryRun}`, opts);
 
-  if (opts['github-release']) {
+  // Turn off Github releases for a canary.
+  if (opts['github-release'] && preRelease !== 'canary') {
     // https://github.com/conventional-changelog/releaser-tools/tree/master/packages/conventional-github-releaser
     // Requires a CONVENTIONAL_GITHUB_RELEASER_TOKEN env variable
     await cmd(`npx conventional-github-releaser -p angular`, opts);

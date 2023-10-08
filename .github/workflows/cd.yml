@@ -15,6 +15,8 @@ on:
         - patch
         - minor
         - major
+        - canary
+        - beta
 
 jobs:
   deploy:

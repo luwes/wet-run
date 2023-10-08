@@ -1,3 +1,17 @@
+# [0.4.0](https://github.com/luwes/wet-run/compare/v0.3.0...v0.4.0) (2023-10-08)
+
+
+### Bug Fixes
+
+* add access and permission for provenance ([90fc344](https://github.com/luwes/wet-run/commit/90fc3445a1945d4ae13f65a70db531f9895f7c9e))
+
+
+### Features
+
+* add `--provenance` flag ([b08ede6](https://github.com/luwes/wet-run/commit/b08ede6da573ca0c85d8b677cba274866622e009))
+
+
+
 # [0.3.0](https://github.com/luwes/wet-run/compare/v0.2.2...v0.3.0) (2023-10-08)
 
 

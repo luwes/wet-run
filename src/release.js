@@ -55,18 +55,12 @@ export async function cliRelease() {
 export async function release(bump = 'conventional', opts) {
   console.log(`Creating a "${bump}" release!`);
 
-  const dryRun = opts['dry-run'] ? '--dry-run' : '';
-  const preRelease = opts['pre-release'];
   let { preid, tag } = opts;
 
-  if (bump === 'conventional') {
-    bump = await cmd(`
-      npx -p conventional-changelog-angular
-          -p conventional-recommended-bump
-          -c 'conventional-recommended-bump -p angular'
-    `, opts);
-  }
+  const dryRun = opts['dry-run'] ? '--dry-run' : '';
+  const preRelease = opts['pre-release'];
 
+  // --pre-release expands to --preid, --tag and a `pre` prefixed bump if needed.
   if (preRelease) {
     preid ||= preRelease;
     tag ||= preRelease;
@@ -76,44 +70,76 @@ export async function release(bump = 'conventional', opts) {
     }
   }
 
-  if (preid) bump += ` --preid ${preid}`;
+  if (bump === 'conventional') {
+    bump = await cmd(`
+      npx -p conventional-changelog-angular
+          -p conventional-recommended-bump
+          -c 'conventional-recommended-bump -p angular'
+    `, opts);
+  }
 
-  const version = await cmd(`npm --no-git-tag-version version ${bump}`, opts);
+  const version = await getVersion(bump, preid, opts);
   console.log(version);
 
-  // Turn off changelogs for a canary.
-  if (opts.changelog && preRelease !== 'canary') {
-    const exists = !(await resolvePair(fs.promises.access('CHANGELOG.md')))[0];
+  await cmd(`npm --no-git-tag-version version ${version}`, opts);
 
-    // https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-cli#quick-start
-    let changelogCmd = `npx conventional-changelog-cli -p angular -i CHANGELOG.md -s`;
-
-    if (!exists) changelogCmd += ' -r 0';
-
-    await cmd(changelogCmd, opts);
-
-    await cmd(`git add CHANGELOG.md ${dryRun}`, opts);
-    await cmd(`git commit -m "docs(CHANGELOG): ${version}" ${dryRun}`, opts);
-  }
-
-  await cmd(`npm --force --allow-same-version version ${version} -m "chore(release): %s"`, opts);
-
-  // Turn off Git commits for a canary.
+  // Canaries don't have Git commits, Github releases or changelogs by default.
   if (preRelease !== 'canary') {
+    if (opts.changelog) await commitChangelog(version, dryRun, opts);
+
+    await cmd(`npm --force --allow-same-version version ${version} -m "chore(release): %s"`, opts);
     await cmd(`git push --follow-tags ${dryRun}`, opts);
-  }
 
-  // Turn off Github releases for a canary.
-  if (opts['github-release'] && preRelease !== 'canary') {
-    // https://github.com/conventional-changelog/releaser-tools/tree/master/packages/conventional-github-releaser
-    // Requires a CONVENTIONAL_GITHUB_RELEASER_TOKEN env variable
-    await cmd(`npx conventional-github-releaser -p angular`, opts);
+    if (opts['github-release']) {
+      // https://github.com/conventional-changelog/releaser-tools/tree/master/packages/conventional-github-releaser
+      // Requires a CONVENTIONAL_GITHUB_RELEASER_TOKEN env variable
+      await cmd(`npx conventional-github-releaser -p angular`, opts);
+    }
   }
-
-  tag = tag ? `--tag ${tag}` : '';
 
   // Requires NODE_AUTH_TOKEN env variable
-  await cmd(`npm publish ${tag} ${dryRun}`, opts);
+  await cmd(`npm publish ${flag({tag})} ${dryRun}`, opts);
+}
+
+async function getVersion(bump, preid, opts) {
+  const [, validVersion] = await resolvePair(cmd(`npx semver ${bump}`, opts));
+  if (validVersion) return validVersion;
+
+  const pkg = await getpkg();
+
+  if (preid || bump.startsWith('pre')) {
+    return getPreReleaseVersion(pkg, bump, preid, opts);
+  }
+
+  return cmd(`npx semver ${pkg.version} -i ${bump}`, opts);
+}
+
+async function getPreReleaseVersion(pkg, bump, preid, opts) {
+  const stringVersions = await cmd(`npm view ${pkg.name} versions --json`, opts);
+  const versions = JSON.parse(stringVersions) ?? [];
+
+  const relevantVersions = versions.filter(v =>
+    !v.includes('-')                       // e.g. 0.2.5
+    || (preid && v.includes(`-${preid}.`)) // e.g. 0.2.5-beta.2
+    || (!preid && /-[0-9]/.test(v))        // e.g. 0.2.5-1
+  );
+
+  const lastVersion = relevantVersions.length ? relevantVersions.pop() : pkg.version;
+  return cmd(`npx semver ${lastVersion} -i ${bump} ${flag({preid})}`, opts);
+}
+
+async function commitChangelog(version, dryRun, opts) {
+  const exists = !(await resolvePair(fs.promises.access('CHANGELOG.md')))[0];
+
+  // https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-cli#quick-start
+  let changelogCmd = `npx conventional-changelog-cli -p angular -i CHANGELOG.md -s`;
+
+  if (!exists) changelogCmd += ' -r 0';
+
+  await cmd(changelogCmd, opts);
+
+  await cmd(`git add CHANGELOG.md ${dryRun}`, opts);
+  await cmd(`git commit -m "docs(CHANGELOG): ${version}" ${dryRun}`, opts);
 }
 
 async function cmd(command, opts) {
@@ -137,4 +163,14 @@ async function resolvePair(promiseLike) {
   } catch (error) {
     return [error, undefined];
   }
+}
+
+async function getpkg(key) {
+  const pkg = JSON.parse(await cmd(`npm pkg get`, {}));
+  return key ? pkg[key] : pkg;
+}
+
+function flag(obj) {
+  const [key, value] = Object.entries(obj)[0];
+  return value ? `--${key} ${value}` : '';
 }

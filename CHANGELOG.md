@@ -1,3 +1,7 @@
+## [0.2.1-beta.1](https://github.com/luwes/wet-run/compare/v0.2.1-beta.0...v0.2.1-beta.1) (2023-10-08)
+
+
+
 ## [0.2.1-beta.0](https://github.com/luwes/wet-run/compare/v0.2.2-canary.0...v0.2.1-beta.0) (2023-10-08)
 
 

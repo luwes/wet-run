@@ -41,7 +41,7 @@ wet release patch --changelog --github-release
 ```
 
 - Positional: `[<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease | from-git]`   
-- Flags: `--pre-release`, `--preid`, `--tag`, `--changelog`, `--github-release`, `--dry-run`, `--verbose`  
+- Flags: `--pre-release`, `--preid`, `--tag`, `--provenance`, `--changelog`, `--github-release`, `--dry-run`, `--verbose`  
 
 ### Continuous deployment (CD)
 

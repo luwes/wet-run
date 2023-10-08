@@ -46,4 +46,4 @@ jobs:
       - run: npm install
       - run: npm test
       - run: npm link # consumers should use npm link wet-run or below npx wet-run ...
-      - run: wet release ${{ inputs.version }} --pre-release "${{ inputs.pre_release }}" --changelog --github-release --verbose
+      - run: wet release ${{ inputs.version }} --pre-release "${{ inputs.pre_release }}" --provenance --changelog --github-release --verbose

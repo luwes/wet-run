@@ -26,6 +26,10 @@ export async function cliRelease() {
     tag: {
       type: 'string'
     },
+    access: {
+      type: 'string',
+      default: 'public'
+    },
     provenance: {
       type: 'boolean',
     },
@@ -58,7 +62,7 @@ export async function cliRelease() {
 export async function release(bump = 'conventional', opts) {
   console.log(`Creating a "${bump}" release!`);
 
-  let { preid, tag, provenance } = opts;
+  let { preid, access, tag, provenance } = opts;
 
   const dryRun = opts['dry-run'] ? '--dry-run' : '';
   const preRelease = opts['pre-release'];
@@ -101,7 +105,7 @@ export async function release(bump = 'conventional', opts) {
   }
 
   // Requires NODE_AUTH_TOKEN env variable
-  await cmd(`npm publish ${flag({tag})} ${flag({provenance})} ${dryRun}`, opts);
+  await cmd(`npm publish ${flag({tag})} ${flag({provenance})} ${flag({access})} ${dryRun}`, opts);
 }
 
 async function getVersion(bump, preid, opts) {

@@ -78,7 +78,7 @@ export async function release(bump = 'conventional', opts) {
 
   if (preid) bump += ` --preid ${preid}`;
 
-  const version = await cmd(`npm --no-git-tag-version version ${bump}`, cmd);
+  const version = await cmd(`npm --no-git-tag-version version ${bump}`, opts);
   console.log(version);
 
   // Turn off changelogs for a canary.
@@ -97,7 +97,11 @@ export async function release(bump = 'conventional', opts) {
   }
 
   await cmd(`npm --force --allow-same-version version ${version} -m "chore(release): %s"`, opts);
-  await cmd(`git push --follow-tags ${dryRun}`, opts);
+
+  // Turn off Git commits for a canary.
+  if (preRelease !== 'canary') {
+    await cmd(`git push --follow-tags ${dryRun}`, opts);
+  }
 
   // Turn off Github releases for a canary.
   if (opts['github-release'] && preRelease !== 'canary') {

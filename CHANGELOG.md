@@ -1,3 +1,12 @@
+# [0.5.0](https://github.com/luwes/wet-run/compare/v0.4.0...v0.5.0) (2023-10-09)
+
+
+### Features
+
+* use --prerelease flag as 1 word ([8f6da1b](https://github.com/luwes/wet-run/commit/8f6da1b6d1ca777060047c4e4b3401954d53f14e))
+
+
+
 # [0.4.0](https://github.com/luwes/wet-run/compare/v0.3.0...v0.4.0) (2023-10-08)
 
 

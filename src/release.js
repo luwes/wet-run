@@ -17,7 +17,7 @@ if (isRunningDirectlyViaCLI) cliRelease();
 export async function cliRelease() {
 
   const options = {
-    'pre-release': {
+    prerelease: {
       type: 'string'
     },
     preid: {
@@ -62,15 +62,14 @@ export async function cliRelease() {
 export async function release(bump = 'conventional', opts) {
   console.log(`Creating a "${bump}" release!`);
 
-  let { preid, access, tag, provenance } = opts;
+  let { prerelease, preid, access, tag, provenance } = opts;
 
   const dryRun = opts['dry-run'] ? '--dry-run' : '';
-  const preRelease = opts['pre-release'];
 
-  // --pre-release expands to --preid, --tag and a `pre` prefixed bump if needed.
-  if (preRelease) {
-    preid ||= preRelease;
-    tag ||= preRelease;
+  // --prerelease expands to --preid, --tag and a `pre` prefixed bump if needed.
+  if (prerelease) {
+    preid ||= prerelease;
+    tag ||= prerelease;
 
     if (['patch', 'minor', 'major'].includes(bump)) {
       bump = `pre${bump}`;
@@ -91,7 +90,7 @@ export async function release(bump = 'conventional', opts) {
   await cmd(`npm --no-git-tag-version version ${version}`, opts);
 
   // Canaries don't have Git commits, Github releases or changelogs by default.
-  if (preRelease !== 'canary') {
+  if (prerelease !== 'canary') {
     if (opts.changelog) await commitChangelog(version, dryRun, opts);
 
     await cmd(`npm --force --allow-same-version version ${version} -m "chore(release): %s"`, opts);
@@ -115,13 +114,13 @@ async function getVersion(bump, preid, opts) {
   const pkg = await getpkg();
 
   if (preid || bump.startsWith('pre')) {
-    return getPreReleaseVersion(pkg, bump, preid, opts);
+    return getPrereleaseVersion(pkg, bump, preid, opts);
   }
 
   return cmd(`npx semver ${pkg.version} -i ${bump}`, opts);
 }
 
-async function getPreReleaseVersion(pkg, bump, preid, opts) {
+async function getPrereleaseVersion(pkg, bump, preid, opts) {
   const stringVersions = await cmd(`npm view ${pkg.name} versions --json`, opts);
   const versions = JSON.parse(stringVersions) ?? [];
 

@@ -16,7 +16,7 @@ on:
         - minor
         - major
         - prerelease
-      pre_release:
+      prerelease:
         type: choice
         required: false
         description: Pre-release
@@ -49,4 +49,4 @@ jobs:
       - run: npm install
       - run: npm test
       - run: npm link # consumers should use npm link wet-run or below npx wet-run ...
-      - run: wet release ${{ inputs.version }} --pre-release "${{ inputs.pre_release }}" --provenance --changelog --github-release --verbose
+      - run: wet release ${{ inputs.version }} --prerelease "${{ inputs.prerelease }}" --provenance --changelog --github-release --verbose

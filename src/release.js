@@ -78,9 +78,10 @@ export async function release(bump = 'conventional', opts) {
 
   if (bump === 'conventional') {
     bump = await cmd(`
-      npx -p conventional-changelog-angular
-          -p conventional-recommended-bump
-          -c 'conventional-recommended-bump -p angular'
+      npx --yes
+        -p conventional-changelog-angular@7.0.0
+        -p conventional-recommended-bump@9.0.0
+        -c 'conventional-recommended-bump -p angular'
     `, opts);
   }
 
@@ -99,7 +100,7 @@ export async function release(bump = 'conventional', opts) {
     if (opts['github-release']) {
       // https://github.com/conventional-changelog/releaser-tools/tree/master/packages/conventional-github-releaser
       // Requires a CONVENTIONAL_GITHUB_RELEASER_TOKEN env variable
-      await cmd(`npx conventional-github-releaser -p angular`, opts);
+      await cmd(`npx --yes conventional-github-releaser@3.1.5 -p angular`, opts);
     }
   }
 
@@ -108,7 +109,7 @@ export async function release(bump = 'conventional', opts) {
 }
 
 async function getVersion(bump, preid, opts) {
-  const [, validVersion] = await resolvePair(cmd(`npx semver ${bump}`, opts));
+  const [, validVersion] = await resolvePair(cmd(`npx --yes semver@7.5.4 ${bump}`, opts));
   if (validVersion) return validVersion;
 
   const pkg = await getpkg();
@@ -117,7 +118,7 @@ async function getVersion(bump, preid, opts) {
     return getPrereleaseVersion(pkg, bump, preid, opts);
   }
 
-  return cmd(`npx semver ${pkg.version} -i ${bump}`, opts);
+  return cmd(`npx --yes semver@7.5.4 ${pkg.version} -i ${bump}`, opts);
 }
 
 async function getPrereleaseVersion(pkg, bump, preid, opts) {
@@ -131,14 +132,14 @@ async function getPrereleaseVersion(pkg, bump, preid, opts) {
   );
 
   const lastVersion = relevantVersions.length ? relevantVersions.pop() : pkg.version;
-  return cmd(`npx semver ${lastVersion} -i ${bump} ${flag({preid})}`, opts);
+  return cmd(`npx --yes semver@7.5.4 ${lastVersion} -i ${bump} ${flag({preid})}`, opts);
 }
 
 async function commitChangelog(version, dryRun, opts) {
   const exists = !(await resolvePair(fs.promises.access('CHANGELOG.md')))[0];
 
   // https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-cli#quick-start
-  let changelogCmd = `npx conventional-changelog-cli -p angular -i CHANGELOG.md -s`;
+  let changelogCmd = `npx --yes conventional-changelog-cli@4.1.0 -p angular -i CHANGELOG.md -s`;
 
   if (!exists) changelogCmd += ' -r 0';
 

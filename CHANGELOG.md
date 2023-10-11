@@ -1,3 +1,12 @@
+## [0.5.1](https://github.com/luwes/wet-run/compare/v0.5.0...v0.5.1) (2023-10-11)
+
+
+### Bug Fixes
+
+* npx allow install, add versions for security ([35d59b0](https://github.com/luwes/wet-run/commit/35d59b08ef6580564237c27fc48aaa6e19f93a85))
+
+
+
 # [0.5.0](https://github.com/luwes/wet-run/compare/v0.4.0...v0.5.0) (2023-10-09)
 
 

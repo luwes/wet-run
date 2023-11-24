@@ -1,3 +1,12 @@
+# [0.6.0](https://github.com/luwes/wet-run/compare/v0.5.1...v0.6.0) (2023-11-24)
+
+
+### Features
+
+* add adapted serve-handler w/ extra features ([ff0bd09](https://github.com/luwes/wet-run/commit/ff0bd092c113b8a0163d732a7a889c25bdb9d411))
+
+
+
 ## [0.5.1](https://github.com/luwes/wet-run/compare/v0.5.0...v0.5.1) (2023-10-11)
 
 

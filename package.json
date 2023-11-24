@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "async-listen": "^3.0.1",
-    "node-fetch": "2.6.1"
+    "node-fetch": "2.6.7"
   },
   "engines": {
     "node": ">=18.3.0"

@@ -46,7 +46,7 @@ jobs:
           # this line is required for the setup-node action to be able to run the npm publish below.
           registry-url: 'https://registry.npmjs.org'
       - uses: fregante/setup-git-user@v1
-      - run: npm install
+      - run: npm ci
       - run: npm test
       - run: npm link # consumers should use npm link wet-run or below npx wet-run ...
       - run: wet release ${{ inputs.version }} --prerelease "${{ inputs.prerelease }}" --provenance --changelog --github-release --verbose

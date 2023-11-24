@@ -20,11 +20,24 @@
   ],
   "scripts": {
     "lint": "npx eslint src/*.js -c .eslintrc.json",
-    "test": "node src/cli run",
+    "test": "npm run test:runner && npm run test:server",
+    "test:runner": "node src/cli run",
+    "test:server": "node --test test/integration.js",
     "dev": "node --watch src/cli"
   },
   "dependencies": {
-    "playwright-core": "^1.31.1"
+    "bytes": "^3.1.2",
+    "content-disposition": "0.5.2",
+    "mime-types": "2.1.18",
+    "minimatch": "3.1.2",
+    "path-is-inside": "1.0.2",
+    "path-to-regexp": "2.2.1",
+    "playwright-core": "^1.40.0",
+    "range-parser": "1.2.0"
+  },
+  "devDependencies": {
+    "async-listen": "^3.0.1",
+    "node-fetch": "2.6.1"
   },
   "engines": {
     "node": ">=18.3.0"

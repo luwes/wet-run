@@ -36,8 +36,7 @@
     "range-parser": "1.2.0"
   },
   "devDependencies": {
-    "async-listen": "^3.0.1",
-    "node-fetch": "2.6.1"
+    "async-listen": "^3.0.1"
   },
   "engines": {
     "node": ">=18.3.0"

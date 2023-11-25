@@ -1,5 +1,7 @@
 import * as http from 'node:http';
+import * as https from 'node:https';
 import * as path from 'node:path';
+import { readFile } from 'node:fs/promises';
 import { argv } from 'node:process';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
@@ -26,6 +28,15 @@ export async function cliServe() {
       type: 'string',
       multiple: true,
     },
+    'ssl-cert': {
+      type: 'string',
+    },
+    'ssl-key': {
+      type: 'string',
+    },
+    'ssl-pass': {
+      type: 'string',
+    },
   };
 
   const {
@@ -48,9 +59,6 @@ export async function serve(dir = '.', opts) {
     redirect,
   } = opts;
 
-  port = await getFreePort(port);
-  const url = `http://localhost:${port}`;
-
   let redirects;
   if (redirect?.length > 0) {
     redirects = redirect.map(r => {
@@ -63,7 +71,35 @@ export async function serve(dir = '.', opts) {
     '/favicon.ico': `${path.dirname(fileURLToPath(import.meta.url))}/favicon.ico`,
   };
 
-  http.createServer(async (request, response) => {
+  // Create the server.
+  const sslCert = opts['ssl-cert'];
+  const sslKey = opts['ssl-key'];
+  const sslPass = opts['ssl-pass'];
+  const isPFXFormat =
+    sslCert && /[.](?<extension>pfx|p12)$/.exec(sslCert) !== null;
+  const useSsl = sslCert && (sslKey || sslPass || isPFXFormat);
+
+  let serverConfig = {};
+  if (useSsl && sslCert && sslKey) {
+    // Format detected is PEM due to usage of SSL Key and Optional Passphrase.
+    serverConfig = {
+      key: await readFile(sslKey),
+      cert: await readFile(sslCert),
+      passphrase: sslPass ? await readFile(sslPass, 'utf8') : '',
+    };
+  } else if (useSsl && sslCert && isPFXFormat) {
+    // Format detected is PFX.
+    serverConfig = {
+      pfx: await readFile(sslCert),
+      passphrase: sslPass ? await readFile(sslPass, 'utf8') : '',
+    };
+  }
+
+  const server = useSsl
+    ? https.createServer(serverConfig, serverHandler)
+    : http.createServer(serverHandler);
+
+  async function serverHandler(request, response) {
 
     if (cors) {
       response.setHeader('Access-Control-Allow-Origin', '*');
@@ -77,9 +113,13 @@ export async function serve(dir = '.', opts) {
     });
 
     console.log(`${request.method} ${request.url} ${response.statusCode}`);
+  }
 
-  }).listen(port);
+  port = await getFreePort(port);
+  server.listen(port);
 
+  const protocol = useSsl ? 'https' : 'http';
+  const url = `${protocol}://localhost:${port}`;
   console.log(`Server running at ${url}`);
 
   return {

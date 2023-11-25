@@ -1,3 +1,12 @@
+# [0.7.0](https://github.com/luwes/wet-run/compare/v0.6.0...v0.7.0) (2023-11-25)
+
+
+### Features
+
+* add ssl flags, https server ([cb72c30](https://github.com/luwes/wet-run/commit/cb72c30b342e72a240cf0aacab0e7cabd5f971dd))
+
+
+
 # [0.6.0](https://github.com/luwes/wet-run/compare/v0.5.1...v0.6.0) (2023-11-24)
 
 

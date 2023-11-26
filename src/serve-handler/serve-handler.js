@@ -11,7 +11,6 @@ import {realpath, lstat, createReadStream, readdir} from 'node:fs';
 import process from 'node:process';
 import * as zlib from 'node:zlib';
 
-import bytes from 'bytes';
 import contentDisposition from 'content-disposition';
 import isPathInside from 'path-is-inside';
 import mime from 'mime-types';
@@ -20,7 +19,7 @@ import parseRange from 'range-parser';
 import pathToRegExp from 'path-to-regexp';
 import url from 'node:url';
 
-import {slashGlob} from './utils.js';
+import {slashGlob, sizeToString} from './utils.js';
 import directoryTemplate from './directory.js';
 import errorTemplate from './error.js';
 
@@ -674,11 +673,7 @@ const renderDirectory = async (current, acceptsJSON, handlers, methods, config, 
 
       details.ext = details.ext.split('.')[1] || 'txt';
       details.type = 'file';
-
-      details.size = bytes(stats.size, {
-        unitSeparator: ' ',
-        decimalPlaces: 0
-      });
+      details.size = sizeToString(stats.size, true);
     }
 
     details.title = details.base;

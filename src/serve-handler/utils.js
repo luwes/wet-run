@@ -29,3 +29,23 @@ export function slashGlob(value) {
 function normalize(value) {
   return posix.normalize(posix.join('/', value));
 }
+
+export function sizeToString(bytes, humanReadable, si) {
+  const threshold = si ? 1000 : 1024;
+
+  if (!humanReadable || bytes < threshold) {
+    return `${bytes}B`;
+  }
+
+  const units = ['k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+  let u = -1;
+  do {
+    bytes /= threshold;
+    u += 1;
+  } while (bytes >= threshold);
+
+  let b = bytes.toFixed(1);
+  if (isNaN(b)) b = '??';
+
+  return b + units[u];
+}

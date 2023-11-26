@@ -23,13 +23,12 @@
     "test": "npm run test:runner && npm run test:server",
     "test:runner": "node src/cli run",
     "test:server": "node --test test/integration.js",
-    "dev": "node --watch src/cli"
+    "dev": "node --watch --no-warnings src/cli"
   },
   "dependencies": {
     "content-disposition": "0.5.2",
     "mime-types": "2.1.18",
     "minimatch": "3.1.2",
-    "path-is-inside": "1.0.2",
     "path-to-regexp": "2.2.1",
     "playwright-core": "^1.40.0",
     "range-parser": "1.2.0"

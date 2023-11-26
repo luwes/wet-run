@@ -12,14 +12,13 @@ import process from 'node:process';
 import * as zlib from 'node:zlib';
 
 import contentDisposition from 'content-disposition';
-import isPathInside from 'path-is-inside';
 import mime from 'mime-types';
 import minimatch from 'minimatch';
 import parseRange from 'range-parser';
 import pathToRegExp from 'path-to-regexp';
 import url from 'node:url';
 
-import {slashGlob, sizeToString} from './utils.js';
+import {slashGlob, sizeToString, isPathInside} from './utils.js';
 import directoryTemplate from './directory.js';
 import errorTemplate from './error.js';
 

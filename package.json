@@ -26,12 +26,12 @@
     "dev": "node --watch --no-warnings src/cli"
   },
   "dependencies": {
-    "content-disposition": "0.5.2",
-    "mime-types": "2.1.18",
+    "content-disposition": "0.5.4",
+    "mime-types": "2.1.35",
     "minimatch": "3.1.2",
     "path-to-regexp": "2.2.1",
     "playwright-core": "^1.40.0",
-    "range-parser": "1.2.0"
+    "range-parser": "1.2.1"
   },
   "devDependencies": {
     "async-listen": "^3.0.1"

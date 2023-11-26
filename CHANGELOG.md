@@ -1,3 +1,14 @@
+## [0.7.1](https://github.com/luwes/wet-run/compare/v0.7.0...v0.7.1) (2023-11-26)
+
+
+### Bug Fixes
+
+* replace bytes pkg w/ util ([ebfa934](https://github.com/luwes/wet-run/commit/ebfa9340124b020d8513cfef6ad73a14711cc6fb))
+* replace pathIsInside pkg w/ util ([c2a24e3](https://github.com/luwes/wet-run/commit/c2a24e3934f98fb5b67a8b03da503c198534d0dc))
+* upgrade some dependencies ([51313eb](https://github.com/luwes/wet-run/commit/51313eb2fc1bd5651de2e14d4f6a29e3398ece66))
+
+
+
 # [0.7.0](https://github.com/luwes/wet-run/compare/v0.6.0...v0.7.0) (2023-11-25)
 
 

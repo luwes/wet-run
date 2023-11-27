@@ -1,15 +1,14 @@
 /**
  * MIT License Copyright (c) 2018 Vercel, Inc.
  * Adapted from https://github.com/vercel/serve-handler
- *   - Added compression by default
  *   - Use tagged templates for HTML
+ *   - Add file defaults to fallback to
  */
 import {promisify} from 'node:util';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {realpath, lstat, createReadStream, readdir} from 'node:fs';
 import process from 'node:process';
-import * as zlib from 'node:zlib';
 
 import contentDisposition from 'content-disposition';
 import mime from 'mime-types';
@@ -62,10 +61,11 @@ export async function serveHandler(request, response, config = {}, methods = {})
   const redirect = shouldRedirect(relativePath, config, cleanUrl);
 
   if (redirect) {
-    response.writeHead(redirect.statusCode, {
-      Location: encodeURI(redirect.target)
-    });
+    let headers = { Location: encodeURI(redirect.target) };
 
+    ({ headers } = handlers.beforeWrite({ headers }));
+
+    response.writeHead(redirect.statusCode, headers);
     response.end();
     return;
   }
@@ -214,7 +214,7 @@ export async function serveHandler(request, response, config = {}, methods = {})
     return internalError(absolutePath, response, acceptsJSON, current, handlers, config, err);
   }
 
-  const headers = await getHeaders(handlers, config, current, absolutePath, stats);
+  let headers = await getHeaders(handlers, config, current, absolutePath, stats);
 
   // eslint-disable-next-line no-undefined
   if (streamOpts.start !== undefined && streamOpts.end !== undefined) {
@@ -235,35 +235,19 @@ export async function serveHandler(request, response, config = {}, methods = {})
     return;
   }
 
-  // Added compression by default. Not in the package `serve-handler`.
-  const acceptEncoding = request.headers['accept-encoding'];
-
-  if (/\bbr\b/.test(acceptEncoding)) {
-    headers['Content-Encoding'] = 'br';
-    delete headers['Content-Length'];
-    stream = stream.pipe(zlib.createBrotliCompress());
-  }
-  else if (/\bgzip\b/.test(acceptEncoding)) {
-    headers['Content-Encoding'] = 'gzip';
-    delete headers['Content-Length'];
-    stream = stream.pipe(zlib.createGzip());
-  }
-  else if (/\bdeflate\b/.test(acceptEncoding)) {
-    headers['Content-Encoding'] = 'deflate';
-    delete headers['Content-Length'];
-    stream = stream.pipe(zlib.createInflate());
-  }
+  ({ headers, stream } = handlers.beforeWrite({ headers, stream }));
 
   response.writeHead(response.statusCode || 200, headers);
   stream.pipe(response);
 }
 
 const getHandlers = methods => Object.assign({
+  beforeWrite: output => output,
   lstat: promisify(lstat),
   realpath: promisify(realpath),
-  createReadStream,
   readdir: promisify(readdir),
-  sendError
+  createReadStream,
+  sendError,
 }, methods);
 
 const sendError = async (absolutePath, response, acceptsJSON, current, handlers, config, spec) => {
@@ -307,7 +291,9 @@ const sendError = async (absolutePath, response, acceptsJSON, current, handlers,
     try {
       stream = await handlers.createReadStream(errorPage);
 
-      const headers = await getHeaders(handlers, config, current, errorPage, stats);
+      let headers = await getHeaders(handlers, config, current, errorPage, stats);
+
+      ({ headers, stream } = handlers.beforeWrite({ headers, stream }));
 
       response.writeHead(statusCode, headers);
       stream.pipe(response);
@@ -318,8 +304,10 @@ const sendError = async (absolutePath, response, acceptsJSON, current, handlers,
     }
   }
 
-  const headers = await getHeaders(handlers, config, current, absolutePath, null);
+  let headers = await getHeaders(handlers, config, current, absolutePath, null);
   headers['Content-Type'] = 'text/html; charset=utf-8';
+
+  ({ headers } = handlers.beforeWrite({ headers }));
 
   response.writeHead(statusCode, headers);
   response.end(errorTemplate({statusCode, message}));

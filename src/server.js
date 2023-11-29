@@ -137,6 +137,7 @@ export async function serve(dir = '.', opts) {
           controller.enqueue(chunk);
         }
       })), {
+        status: response.status,
         headers: response.headers,
       });
     }

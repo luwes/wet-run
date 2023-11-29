@@ -1,11 +1,25 @@
 import * as http from 'node:http';
 import * as https from 'node:https';
 import * as path from 'node:path';
-import { readFile } from 'node:fs/promises';
-import { argv } from 'node:process';
+import { watch } from 'node:fs';
+import fs from 'node:fs';
+import { readdir, readFile, stat } from 'node:fs/promises';
+import { Readable } from 'node:stream';
+import { argv, cwd } from 'node:process';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { serveHandler } from './serve-handler/serve-handler.js';
+
+import WebSocket, { WebSocketServer } from 'ws';
+import { Hono } from 'hono';
+import { cors as honoCors } from 'hono/cors';
+import { etag } from 'hono/etag';
+// import { compress } from 'hono/compress';
+import { logger } from 'hono/logger';
+import { getMimeType } from 'hono/utils/mime';
+import { serve as honoServe } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
+
+import { getFreePort, resolvePair, sizeToString, lastModifiedToString } from './utils.js';
 
 const nodePath = path.resolve(argv[1]);
 const modulePath = path.resolve(fileURLToPath(import.meta.url));
@@ -27,6 +41,10 @@ export async function cliServe() {
     redirect: {
       type: 'string',
       multiple: true,
+    },
+    livereload: {
+      type: 'boolean',
+      short: 'l',
     },
     'ssl-cert': {
       type: 'string',
@@ -57,18 +75,13 @@ export async function serve(dir = '.', opts) {
     port,
     cors,
     redirect,
+    livereload,
+    livereloadExts = ['html', 'css', 'js', 'png', 'gif', 'jpg', 'php', 'py', 'rb', 'erb']
   } = opts;
-
-  let redirects;
-  if (redirect?.length > 0) {
-    redirects = redirect.map(r => {
-      const [source, destination] = r.split(':');
-      return { source, destination };
-    });
-  }
 
   const defaults = {
     '/favicon.ico': `${path.dirname(fileURLToPath(import.meta.url))}/favicon.ico`,
+    '/livereload.js': `${path.dirname(fileURLToPath(import.meta.url))}/client/livereload.js`,
   };
 
   // Create the server.
@@ -79,44 +92,96 @@ export async function serve(dir = '.', opts) {
     sslCert && /[.](?<extension>pfx|p12)$/.exec(sslCert) !== null;
   const useSsl = sslCert && (sslKey || sslPass || isPFXFormat);
 
-  let serverConfig = {};
+  let serverOptions = {};
   if (useSsl && sslCert && sslKey) {
     // Format detected is PEM due to usage of SSL Key and Optional Passphrase.
-    serverConfig = {
+    serverOptions = {
       key: await readFile(sslKey),
       cert: await readFile(sslCert),
       passphrase: sslPass ? await readFile(sslPass, 'utf8') : '',
     };
   } else if (useSsl && sslCert && isPFXFormat) {
     // Format detected is PFX.
-    serverConfig = {
+    serverOptions = {
       pfx: await readFile(sslCert),
       passphrase: sslPass ? await readFile(sslPass, 'utf8') : '',
     };
   }
 
-  const server = useSsl
-    ? https.createServer(serverConfig, serverHandler)
-    : http.createServer(serverHandler);
+  const app = new Hono();
+  app.use('*', etag());
+  app.use('*', logger());
 
-  async function serverHandler(request, response) {
+  if (cors) app.use('*', honoCors());
 
-    if (cors) {
-      response.setHeader('Access-Control-Allow-Origin', '*');
-      response.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Range');
+  var textEncoder = new TextEncoder();
+
+  // app.use('*', compress());
+  app.use('*', async (c, next) => {
+    const response = await serveStatic({ root: dir })(c, next);
+
+    if (response.body instanceof ReadableStream) {
+
+      response.headers.delete('Content-Length');
+
+      return new Response(response.body.pipeThrough(new TransformStream({
+        transform(chunk, controller) {
+          let content = `${chunk}`;
+          let script = `  <script type="module" src="/livereload.js"></script>\n`;
+
+          if (livereload && content.includes('</head>')) {
+            chunk = content.replace('</head>', `${script}</head>`);
+            chunk = textEncoder.encode(chunk);
+          }
+
+          controller.enqueue(chunk);
+        }
+      })), {
+        headers: response.headers,
+      });
     }
 
-    await serveHandler(request, response, {
-      public: dir,
-      redirects,
-      defaults,
-    });
+    return response;
+  });
 
-    console.log(`${request.method} ${request.url} ${response.statusCode}`);
+  for (const r of redirect ?? []) {
+    const [from, to] = r.split(':');
+    app.get(from, (c) => c.redirect(to, 301));
   }
 
+  app.notFound(async (c) => {
+    const { path } = c.req;
+
+    // Serve default files.
+    if (defaults[path]) {
+      const mimeType = getMimeType(path)
+      if (mimeType) c.header('Content-Type', mimeType);
+      return c.body(fs.createReadStream(defaults[path]));
+    }
+
+    // Serve directory index.
+    const [, stats] = await resolvePair(stat(path));
+
+    if (stats?.isDirectory()) {
+      c.header('Content-Type', 'text/html');
+      return c.body(Readable.from(createDirIndex(path)));
+    }
+
+    return c.text('404 Not Found', 404);
+  });
+
   port = await getFreePort(port);
-  server.listen(port);
+
+  const server = honoServe({
+    fetch: app.fetch,
+    createServer: useSsl ? https.createServer : http.createServer,
+    port,
+    serverOptions,
+  })
+
+  if (livereload) {
+    createLivereload(dir, livereloadExts, { port, server });
+  }
 
   const protocol = useSsl ? 'https' : 'http';
   const url = `${protocol}://localhost:${port}`;
@@ -128,20 +193,83 @@ export async function serve(dir = '.', opts) {
   };
 }
 
-async function getFreePort(base = 8000) {
-  for (let port = base; port < base + 100; port++) {
-    if (await isPortAvailable(port)) return port;
-  }
+function createLivereload(dir, exts, { server }) {
+
+  const wss = new WebSocketServer({
+    server,
+  });
+
+  wss.on('connection', (ws) => {
+    ws.on('error', console.error);
+
+    ws.on('message', (data) => {
+      const message = JSON.parse(data);
+      if (message.command === 'hello') {
+        console.log('Livereload client connected');
+      }
+    });
+
+    ws.send(JSON.stringify({
+      command: 'hello',
+    }));
+  });
+
+  watch(dir, { recursive: true }, (eventType, filename) => {
+    if (filename) {
+      const ext = path.extname(filename).slice(1);
+      if (exts.includes(ext)) {
+        console.log(`  <-- WS  /${filename}`);
+
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              command: 'reload',
+              path: filename,
+              liveCSS: true,
+              liveImg: true,
+            }));
+          }
+        });
+      }
+    }
+  });
 }
 
-function isPortAvailable(port) {
-  return new Promise((resolve) => {
-    const tester = http
-      .createServer()
-      .once('error', () => resolve(false))
-      .once('listening', () =>
-        tester.once('close', () => resolve(true)).close()
-      )
-      .listen(port);
-  });
+async function* createDirIndex(pathname) {
+  yield `
+<!doctype html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Index of ${pathname}</title>
+  <style>
+    body {
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif;
+      line-height: 1.5;
+    }
+    td { padding: 0 .5em; }
+  </style>
+</head>
+<body>
+  <h1>Index of ${pathname}</h1>
+  <table>
+`.trim();
+
+    const [, files = []] = await resolvePair(readdir(path.join(cwd(), pathname)));
+    for (let file of files) {
+      let filePath = path.join(pathname, file);
+      const [, stats] = await resolvePair(stat(path.join(cwd(), pathname, file)));
+
+      if (stats?.isDirectory()) filePath = path.join(filePath, path.sep);
+
+      yield `
+    <tr>
+      <td>${lastModifiedToString(stats)}</td>
+      <td><code>${sizeToString(stats, true)}</code></td>
+      <td><a href="${filePath}">${file}</a></td>
+    </tr>`;
+  }
+
+  yield `
+  </table>
+</body>`;
 }

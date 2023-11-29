@@ -1,3 +1,13 @@
+# [0.8.0](https://github.com/luwes/wet-run/compare/v0.7.1...v0.8.0) (2023-11-29)
+
+
+### Features
+
+* add livereload WIP ([72c8c52](https://github.com/luwes/wet-run/commit/72c8c5202d362dd6f451321b995452dd4a2488c3))
+* use Hono & add basic livereload ([82aaa58](https://github.com/luwes/wet-run/commit/82aaa582d0de7d4e1b0ea02db34ba150796486e9))
+
+
+
 ## [0.7.1](https://github.com/luwes/wet-run/compare/v0.7.0...v0.7.1) (2023-11-26)
 
 

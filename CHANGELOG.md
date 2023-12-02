@@ -1,3 +1,12 @@
+## [0.9.1](https://github.com/luwes/wet-run/compare/v0.9.0...v0.9.1) (2023-12-02)
+
+
+### Bug Fixes
+
+* npx c8 race condition ([ca67008](https://github.com/luwes/wet-run/commit/ca670082dc305c56c23c8053ae2e8e546034a0d0))
+
+
+
 # [0.9.0](https://github.com/luwes/wet-run/compare/v0.8.1...v0.9.0) (2023-12-02)
 
 

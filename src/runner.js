@@ -157,11 +157,8 @@ async function createCoverageReports(report, url, opts) {
     JSON.stringify({ result: reportWithPath }, null, 2)
   );
 
-  const tablePromise = cmd(`npx -y c8@8.0.1 report`, opts);
-  const lcovPromise = cmd(`npx -y c8@8.0.1 report --reporter=text-lcov > ./coverage/lcov.info`, opts);
-
-  const table = await tablePromise;
+  const table = await cmd(`npx -y c8@8.0.1 report`, opts);
   console.log(`\n${table}`);
 
-  await lcovPromise;
+  await cmd(`npx -y c8@8.0.1 report --reporter=text-lcov > ./coverage/lcov.info`, opts);
 }

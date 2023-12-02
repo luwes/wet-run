@@ -1,4 +1,8 @@
 import http from 'node:http';
+import child_process from 'node:child_process';
+import { promisify } from 'node:util';
+
+const exec = promisify(child_process.exec);
 
 export async function getFreePort(base = 8000) {
   for (let port = base; port < base + 100; port++) {
@@ -16,6 +20,20 @@ export function isPortAvailable(port) {
       )
       .listen(port);
   });
+}
+
+export async function cmd(command, opts) {
+  command = command.trim().replace(/\s+/g, ' ');
+
+  if (opts.verbose) console.log(`${command}`);
+
+  const { stdout, stderr } = await exec(command);
+
+  if (stderr) {
+    console.error(`\n${stderr}`);
+  }
+
+  return stdout.trim();
 }
 
 export function sizeToString(stats, humanReadable, si) {

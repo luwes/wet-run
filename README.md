@@ -18,7 +18,8 @@ wet serve
 ```
 
 - Positional: `<path>`  
-- Flags: `--port`, `--cors`, `--redirect`
+- Flags: `--port`, `--cors`, `--redirect`, `--livereload`, `--ssl-cert`,
+`--ssl-key`, `--ssl-pass`
 
 ## Test Run
 
@@ -30,7 +31,7 @@ wet run
 
 - Positional: `<path>`  
 - Flags: `--port`, `--cors`, `--redirect`, `--servedir`, `--browser`, 
-`--channel`, `--no-headless`, `--timeout`
+`--channel`, `--no-headless`, `--timeout`, `--coverage`
 
 ## Release
 

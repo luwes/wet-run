@@ -3,11 +3,10 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import process from 'node:process';
-import child_process from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { parseArgs, promisify } from 'node:util';
+import { parseArgs } from 'node:util';
+import { resolvePair, cmd } from './utils.js';
 
-const exec = promisify(child_process.exec);
 const nodePath = path.resolve(process.argv[1]);
 const modulePath = path.resolve(fileURLToPath(import.meta.url));
 const isRunningDirectlyViaCLI = nodePath === modulePath;
@@ -147,29 +146,6 @@ async function commitChangelog(version, dryRun, opts) {
 
   await cmd(`git add CHANGELOG.md ${dryRun}`, opts);
   await cmd(`git commit -m "docs(CHANGELOG): ${version}" ${dryRun}`, opts);
-}
-
-async function cmd(command, opts) {
-  command = command.trim().replace(/\s+/g, ' ');
-
-  if (opts.verbose) console.log(`${command}`);
-
-  const { stdout, stderr } = await exec(command);
-
-  if (stderr) {
-    console.error(`\n${stderr}`);
-  }
-
-  return stdout.trim();
-}
-
-async function resolvePair(promiseLike) {
-  try {
-    const data = await promiseLike;
-    return [undefined, data];
-  } catch (error) {
-    return [error, undefined];
-  }
 }
 
 async function getpkg(key) {

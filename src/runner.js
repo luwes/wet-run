@@ -2,8 +2,10 @@ import process from 'node:process';
 import * as path from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { mkdir, writeFile } from 'node:fs/promises';
 import playwright from 'playwright-core';
 import { serve } from './server.js';
+import { cmd } from './utils.js';
 
 const nodePath = path.resolve(process.argv[1]);
 const modulePath = path.resolve(fileURLToPath(import.meta.url));
@@ -14,6 +16,9 @@ if (isRunningDirectlyViaCLI) cliRun();
 export async function cliRun() {
 
   const options = {
+    coverage: {
+      type: 'boolean',
+    },
     port: {
       type: 'string',
       short: 'p',
@@ -41,6 +46,9 @@ export async function cliRun() {
     timeout: {
       type: 'string',
     },
+    verbose: {
+      type: 'boolean',
+    },
   };
 
   const {
@@ -65,7 +73,8 @@ export async function run(files, opts) {
     timeout = 10000,
     port,
     cors,
-    servedir
+    servedir,
+    coverage,
   } = opts;
 
   const channels = {
@@ -82,16 +91,34 @@ export async function run(files, opts) {
 
     const page = await brow.newPage();
 
-    page.on('console', event => {
+    if (coverage) {
+      await page.coverage.startJSCoverage();
+    }
+
+    let prefix = '\n';
+    page.on('console', async event => {
       const msg = event.text();
-      console.log(msg);
+
+      console.log(`${prefix}${msg}`);
+      prefix = '';
 
       const match = msg.match(/^# fail +(\d+)$/);
       if (match) {
         if (match[1] == 0) {
-          if (files.length === 0) process.exit(0);
-          else page.goto(`${url}/${files.shift()}`);
+          if (files.length === 0) {
+
+            if (coverage) {
+              const report = await page.coverage.stopJSCoverage();
+              await createCoverageReports(report, url, opts);
+            }
+
+            process.exit(0);
+          }
+          else {
+            page.goto(`${url}/${files.shift()}`);
+          }
         } else {
+          // If there is a failed test, exit with error.
           process.exit(1);
         }
       }
@@ -105,4 +132,36 @@ export async function run(files, opts) {
     console.error(e);
     process.exit(1);
   }
+}
+
+async function createCoverageReports(report, url, opts) {
+
+  const reportWithPath = report
+    .filter((entry) => {
+      const { pathname } = new URL(entry.url);
+      return entry.url.startsWith(url)
+        && !pathname.startsWith('/node_modules/')
+        && !pathname.startsWith('/test/');
+    })
+    .map((entry) => {
+      const { pathname } = new URL(entry.url);
+      return {
+        ...entry,
+        url: `file://${path.join(process.cwd(), pathname)}`
+      };
+    })
+
+  await mkdir('coverage/tmp/', { recursive: true });
+  await writeFile(
+    'coverage/tmp/coverage.json',
+    JSON.stringify({ result: reportWithPath }, null, 2)
+  );
+
+  const tablePromise = cmd(`npx -y c8@8.0.1 report`, opts);
+  const lcovPromise = cmd(`npx -y c8@8.0.1 report --reporter=text-lcov > ./coverage/lcov.info`, opts);
+
+  const table = await tablePromise;
+  console.log(`\n${table}`);
+
+  await lcovPromise;
 }

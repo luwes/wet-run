@@ -186,7 +186,7 @@ export async function serve(dir = '.', opts) {
 
   const protocol = useSsl ? 'https' : 'http';
   const url = `${protocol}://localhost:${port}`;
-  console.log(`Server running at ${url}`);
+  console.log(`Server running at ${url}\n`);
 
   return {
     url,

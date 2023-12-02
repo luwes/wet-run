@@ -1,3 +1,12 @@
+# [0.9.0](https://github.com/luwes/wet-run/compare/v0.8.1...v0.9.0) (2023-12-02)
+
+
+### Features
+
+* add coverage feature to test runner ([15030e4](https://github.com/luwes/wet-run/commit/15030e4b64d7326c3f1fe882217cda9640e0916d))
+
+
+
 ## [0.8.1](https://github.com/luwes/wet-run/compare/v0.8.0...v0.8.1) (2023-11-29)
 
 

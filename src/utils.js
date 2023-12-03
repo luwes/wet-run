@@ -18,7 +18,7 @@ export function isPortAvailable(port) {
       .once('listening', () =>
         tester.once('close', () => resolve(true)).close()
       )
-      .listen(port);
+      .listen(port, '0.0.0.0');
   });
 }
 

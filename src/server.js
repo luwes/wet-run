@@ -151,21 +151,21 @@ export async function serve(dir = '.', opts) {
   }
 
   app.notFound(async (c) => {
-    const { path } = c.req;
+    const { path: pathname } = c.req;
 
     // Serve default files.
-    if (defaults[path]) {
-      const mimeType = getMimeType(path)
+    if (defaults[pathname]) {
+      const mimeType = getMimeType(pathname)
       if (mimeType) c.header('Content-Type', mimeType);
-      return c.body(fs.createReadStream(defaults[path]));
+      return c.body(fs.createReadStream(defaults[pathname]));
     }
 
     // Serve directory index.
-    const [, stats] = await resolvePair(stat(path));
+    const [, stats] = await resolvePair(stat(path.join(cwd(), pathname)));
 
     if (stats?.isDirectory()) {
       c.header('Content-Type', 'text/html');
-      return c.body(Readable.from(createDirIndex(path)));
+      return c.body(Readable.from(createDirIndex(pathname)));
     }
 
     return c.text('404 Not Found', 404);
@@ -255,7 +255,12 @@ async function* createDirIndex(pathname) {
   <table>
 `.trim();
 
-    const [, files = []] = await resolvePair(readdir(path.join(cwd(), pathname)));
+    let [, files = []] = await resolvePair(readdir(path.join(cwd(), pathname)));
+
+    files = files.filter(f => {
+      return !(f === '.DS_Store' || f === '.git');
+    });
+
     for (let file of files) {
       let filePath = path.join(pathname, file);
       const [, stats] = await resolvePair(stat(path.join(cwd(), pathname, file)));

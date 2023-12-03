@@ -1,3 +1,13 @@
+## [0.9.2](https://github.com/luwes/wet-run/compare/v0.9.1...v0.9.2) (2023-12-03)
+
+
+### Bug Fixes
+
+* find port issue ([2ecdd0a](https://github.com/luwes/wet-run/commit/2ecdd0ab3681c573338790643869360b487646a9))
+* timeout per page load issue ([29e8718](https://github.com/luwes/wet-run/commit/29e8718d43b2c50bd715aa18c41dadb70afbbed9))
+
+
+
 ## [0.9.1](https://github.com/luwes/wet-run/compare/v0.9.0...v0.9.1) (2023-12-02)
 
 

@@ -107,6 +107,8 @@ export async function run(files, opts) {
         if (match[1] == 0) {
           if (files.length === 0) {
 
+            clearTimeout(timeoutId);
+
             if (coverage) {
               const report = await page.coverage.stopJSCoverage();
               await createCoverageReports(report, url, opts);
@@ -115,7 +117,7 @@ export async function run(files, opts) {
             process.exit(0);
           }
           else {
-            page.goto(`${url}/${files.shift()}`);
+            await gotoWithTimeout(page, `${url}/${files.shift()}`, timeout);
           }
         } else {
           // If there is a failed test, exit with error.
@@ -124,14 +126,27 @@ export async function run(files, opts) {
       }
     });
 
-    await page.goto(`${url}/${files.shift()}`);
-    await page.waitForTimeout(+timeout);
-
-    process.exit(2);
-  } catch (e) {
-    console.error(e);
+    await gotoWithTimeout(page, `${url}/${files.shift()}`, timeout);
+  } catch (err) {
+    console.error(err);
     process.exit(1);
   }
+}
+
+let timeoutId;
+
+async function gotoWithTimeout(page, url, timeout) {
+  clearTimeout(timeoutId);
+
+  timeoutId = setTimeout(() => {
+    console.error(`\nTimeout of ${timeout}ms exceeded for URL: ${url}`);
+    process.exit(1);
+  }, +timeout);
+
+  // Make Node not wait for this timeout to complete if it needs to exit earlier.
+  timeoutId.unref();
+
+  return page.goto(url);
 }
 
 async function createCoverageReports(report, url, opts) {

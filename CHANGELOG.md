@@ -1,3 +1,12 @@
+## [0.9.3](https://github.com/luwes/wet-run/compare/v0.9.2...v0.9.3) (2023-12-03)
+
+
+### Bug Fixes
+
+* directory index list ([612945c](https://github.com/luwes/wet-run/commit/612945cd1de949cc750aebc3d276f2a47caffb24))
+
+
+
 ## [0.9.2](https://github.com/luwes/wet-run/compare/v0.9.1...v0.9.2) (2023-12-03)
 
 

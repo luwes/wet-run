@@ -13,7 +13,7 @@ import WebSocket, { WebSocketServer } from 'ws';
 import { Hono } from 'hono';
 import { cors as honoCors } from 'hono/cors';
 import { etag } from 'hono/etag';
-// import { compress } from 'hono/compress';
+import { compress } from 'hono/compress';
 import { logger } from 'hono/logger';
 import { getMimeType } from 'hono/utils/mime';
 import { serve as honoServe } from '@hono/node-server';
@@ -116,7 +116,7 @@ export async function serve(dir = '.', opts) {
 
   var textEncoder = new TextEncoder();
 
-  // app.use('*', compress());
+  app.use('*', compress());
   app.use('*', async (c, next) => {
     const response = await serveStatic({ root: dir })(c, next);
 

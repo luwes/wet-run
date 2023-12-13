@@ -1,3 +1,12 @@
+## [0.9.4](https://github.com/luwes/wet-run/compare/v0.9.3...v0.9.4) (2023-12-13)
+
+
+### Bug Fixes
+
+* upgrade deps + add Hono compress ([565aee4](https://github.com/luwes/wet-run/commit/565aee40cf98d529d708f2c9b3dd5c8eb5ce7afa))
+
+
+
 ## [0.9.3](https://github.com/luwes/wet-run/compare/v0.9.2...v0.9.3) (2023-12-03)
 
 

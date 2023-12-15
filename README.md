@@ -1,6 +1,8 @@
 # 💦 Wet Run
 
 [![npm version](https://img.shields.io/npm/v/wet-run?style=flat-square&color=success)](http://npmjs.org/wet-run) 
+[![Codecov](https://img.shields.io/codecov/c/github/luwes/wet-run?style=flat-square)](https://app.codecov.io/gh/luwes/wet-run)
+
 
 Minimal static server, 
 [TAP](https://testanything.org/) test runner and

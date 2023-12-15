@@ -8,7 +8,7 @@ import { cmd, isCli } from './utils.js';
 
 if (await isCli(import.meta.url)) cliRun();
 
-export async function cliRun() {
+export function cliRun() {
 
   const options = {
     coverage: {

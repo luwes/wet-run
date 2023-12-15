@@ -22,7 +22,7 @@ import { isCli, getFreePort, resolvePair, sizeToString, lastModifiedToString } f
 
 if (await isCli(import.meta.url)) cliServe();
 
-export async function cliServe() {
+export function cliServe() {
 
   const options = {
     port: {

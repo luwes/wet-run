@@ -6,7 +6,7 @@ import { isCli, resolvePair, cmd } from './utils.js';
 
 if (await isCli(import.meta.url)) cliRelease();
 
-export async function cliRelease() {
+export function cliRelease() {
 
   const options = {
     prerelease: {

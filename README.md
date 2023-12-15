@@ -1,5 +1,7 @@
 # 💦 Wet Run
 
+[![npm version](https://img.shields.io/npm/v/wet-run?style=flat-square&color=success)](http://npmjs.org/wet-run) 
+
 Minimal static server, 
 [TAP](https://testanything.org/) test runner and
 [conventional](https://www.conventionalcommits.org/en/v1.0.0/) release flow

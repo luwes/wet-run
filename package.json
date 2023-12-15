@@ -23,7 +23,7 @@
     "lint": "npx eslint src/*.js -c .eslintrc.json",
     "test": "npm run test:runner && npm run test:server",
     "test:runner": "npm run clean && node src/cli run --coverage",
-    "test:server": "npx -y c8@8.0.1 --src src --exclude 'test/**' node --test test/*.test.js",
+    "test:server": "npx -y c8@8.0.1 --all --src src --exclude 'test/**' node --test test/*.test.js",
     "coverage": "npx -y c8@8.0.1 report --reporter=text-lcov > ./coverage/lcov.info",
     "dev": "node --watch --no-warnings src/cli"
   },

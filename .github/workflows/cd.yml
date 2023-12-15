@@ -18,12 +18,14 @@ on:
         - prerelease
       prerelease:
         type: choice
-        required: false
         description: Pre-release
         options:
         -
         - canary
         - beta
+      dryrun:
+        description: 'Dry-run'
+        type: boolean
 
 jobs:
   deploy:
@@ -50,4 +52,4 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm link # consumers should use npm link wet-run or below npx wet-run ...
-      - run: wet release ${{ inputs.version }} --prerelease "${{ inputs.prerelease }}" --provenance --changelog --github-release --verbose
+      - run: wet release ${{ inputs.version }} ${{ inputs.dryrun && '--dry-run' || '' }} --prerelease "${{ inputs.prerelease }}" --provenance --changelog --github-release --verbose

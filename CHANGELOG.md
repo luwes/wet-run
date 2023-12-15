@@ -1,3 +1,15 @@
+## [0.9.5](https://github.com/luwes/wet-run/compare/v0.9.4...v0.9.5) (2023-12-15)
+
+
+### Bug Fixes
+
+* abort watch on server close ([728f944](https://github.com/luwes/wet-run/commit/728f9446c478e90ef5fc54e649eb5ffaf743f268))
+* directory index + server tests ([1312dda](https://github.com/luwes/wet-run/commit/1312ddaf940f754cf5aad5cc03ac1ec4c12480f1))
+* improve error handling ([#4](https://github.com/luwes/wet-run/issues/4)) ([88a9351](https://github.com/luwes/wet-run/commit/88a935123cb5e204283ab3359ef54b5a5f6748d6))
+* isPortAvailable ([e577250](https://github.com/luwes/wet-run/commit/e57725043bd9b17e5375b211ecfde410744145f9))
+
+
+
 ## [0.9.4](https://github.com/luwes/wet-run/compare/v0.9.3...v0.9.4) (2023-12-13)
 
 

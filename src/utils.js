@@ -1,8 +1,17 @@
+import { argv } from 'node:process';
+import { realpath } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url';
 import net from 'node:net';
 import child_process from 'node:child_process';
 import { promisify } from 'node:util';
 
 const exec = promisify(child_process.exec);
+
+export async function isCli(metaUrl) {
+  const nodePath = await realpath(argv[1]);
+  const modulePath = await realpath(fileURLToPath(metaUrl));
+  return nodePath === modulePath;
+}
 
 export async function getFreePort(base = 8000) {
   for (let port = base; port < base + 10; port++) {

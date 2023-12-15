@@ -1,18 +1,12 @@
 import process from 'node:process';
 import * as path from 'node:path';
 import { parseArgs } from 'node:util';
-import { realpath } from 'node:fs/promises'
-import { fileURLToPath } from 'node:url';
 import { mkdir, writeFile, unlink } from 'node:fs/promises';
 import playwright from 'playwright-core';
 import { serve } from './server.js';
-import { cmd } from './utils.js';
+import { cmd, isCli } from './utils.js';
 
-const nodePath = await realpath(process.argv[1]);
-const modulePath = await realpath(fileURLToPath(import.meta.url));
-const isCLI = nodePath === modulePath;
-
-if (isCLI) cliRun();
+if (await isCli(import.meta.url)) cliRun();
 
 export async function cliRun() {
 

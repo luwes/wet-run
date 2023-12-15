@@ -3,9 +3,8 @@ import * as https from 'node:https';
 import * as path from 'node:path';
 import { watch } from 'node:fs';
 import fs from 'node:fs';
-import { readdir, readFile, stat, realpath } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { Readable } from 'node:stream';
-import { argv } from 'node:process';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 
@@ -19,13 +18,9 @@ import { getMimeType } from 'hono/utils/mime';
 import { serve as honoServe } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 
-import { getFreePort, resolvePair, sizeToString, lastModifiedToString } from './utils.js';
+import { isCli, getFreePort, resolvePair, sizeToString, lastModifiedToString } from './utils.js';
 
-const nodePath = await realpath(argv[1]);
-const modulePath = await realpath(fileURLToPath(import.meta.url));
-const isCLI = nodePath === modulePath;
-
-if (isCLI) cliServe();
+if (await isCli(import.meta.url)) cliServe();
 
 export async function cliServe() {
 

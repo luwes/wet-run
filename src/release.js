@@ -1,17 +1,10 @@
 // npm publish with goodies
 // inspired by https://gist.github.com/stevemao/280ef22ee861323993a0
 import * as fs from 'node:fs';
-import { realpath } from 'node:fs/promises'
-import process from 'node:process';
-import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { resolvePair, cmd } from './utils.js';
+import { isCli, resolvePair, cmd } from './utils.js';
 
-const nodePath = await realpath(process.argv[1]);
-const modulePath = await realpath(fileURLToPath(import.meta.url));
-const isCLI = nodePath === modulePath;
-
-if (isCLI) cliRelease();
+if (await isCli(import.meta.url)) cliRelease();
 
 export async function cliRelease() {
 

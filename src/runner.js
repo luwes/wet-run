@@ -2,7 +2,7 @@ import process from 'node:process';
 import * as path from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, unlink } from 'node:fs/promises';
 import playwright from 'playwright-core';
 import { serve } from './server.js';
 import { cmd } from './utils.js';
@@ -176,4 +176,6 @@ async function createCoverageReports(report, url, opts) {
   console.log(`\n${table}`);
 
   await cmd(`npx -y c8@8.0.1 report --reporter=text-lcov > ./coverage/lcov.info`, opts);
+
+  await unlink('coverage/tmp/coverage.json');
 }

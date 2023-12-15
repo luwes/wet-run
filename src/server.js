@@ -5,7 +5,7 @@ import { watch } from 'node:fs';
 import fs from 'node:fs';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { Readable } from 'node:stream';
-import { argv, cwd } from 'node:process';
+import { argv } from 'node:process';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 
@@ -69,8 +69,7 @@ export async function cliServe() {
   await serve(dir, values);
 }
 
-export async function serve(dir = '.', opts) {
-
+export async function serve(root = '.', opts = {}) {
   let {
     port,
     cors,
@@ -118,7 +117,7 @@ export async function serve(dir = '.', opts) {
 
   app.use('*', compress());
   app.use('*', async (c, next) => {
-    const response = await serveStatic({ root: dir })(c, next);
+    const response = await serveStatic({ root })(c, next);
 
     if (response.body instanceof ReadableStream) {
 
@@ -151,7 +150,7 @@ export async function serve(dir = '.', opts) {
   }
 
   app.notFound(async (c) => {
-    const { path: pathname } = c.req;
+    const pathname = c.req.path;
 
     // Serve default files.
     if (defaults[pathname]) {
@@ -161,11 +160,11 @@ export async function serve(dir = '.', opts) {
     }
 
     // Serve directory index.
-    const [, stats] = await resolvePair(stat(path.join(cwd(), pathname)));
+    const [, stats] = await resolvePair(stat(path.join(root, pathname)));
 
     if (stats?.isDirectory()) {
       c.header('Content-Type', 'text/html');
-      return c.body(Readable.from(createDirIndex(pathname)));
+      return c.body(Readable.from(createDirIndex(root, pathname)));
     }
 
     return c.text('404 Not Found', 404);
@@ -181,7 +180,7 @@ export async function serve(dir = '.', opts) {
   })
 
   if (livereload) {
-    createLivereload(dir, livereloadExts, { port, server });
+    createLivereload(root, livereloadExts, { port, server });
   }
 
   const protocol = useSsl ? 'https' : 'http';
@@ -189,12 +188,13 @@ export async function serve(dir = '.', opts) {
   console.log(`Server running at ${url}\n`);
 
   return {
+    server,
     url,
     port,
   };
 }
 
-function createLivereload(dir, exts, { server }) {
+function createLivereload(root, exts, { server }) {
 
   const wss = new WebSocketServer({
     server,
@@ -215,7 +215,7 @@ function createLivereload(dir, exts, { server }) {
     }));
   });
 
-  watch(dir, { recursive: true }, (eventType, filename) => {
+  watch(root, { recursive: true }, (eventType, filename) => {
     if (filename) {
       const ext = path.extname(filename).slice(1);
       if (exts.includes(ext)) {
@@ -236,15 +236,15 @@ function createLivereload(dir, exts, { server }) {
   });
 }
 
-async function* createDirIndex(pathname) {
+async function* createDirIndex(root, pathname) {
   yield `
 <!doctype html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Index of ${pathname}</title>
   <style>
     body {
-      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif;
+      font-family: system-ui, sans-serif;
       line-height: 1.5;
     }
     td { padding: 0 .5em; }
@@ -255,7 +255,7 @@ async function* createDirIndex(pathname) {
   <table>
 `.trim();
 
-    let [, files = []] = await resolvePair(readdir(path.join(cwd(), pathname)));
+    let [, files = []] = await resolvePair(readdir(path.join(root, pathname)));
 
     files = files.filter(f => {
       return !(f === '.DS_Store' || f === '.git');
@@ -263,7 +263,7 @@ async function* createDirIndex(pathname) {
 
     for (let file of files) {
       let filePath = path.join(pathname, file);
-      const [, stats] = await resolvePair(stat(path.join(cwd(), pathname, file)));
+      const [, stats] = await resolvePair(stat(path.join(root, pathname, file)));
 
       if (stats?.isDirectory()) filePath = path.join(filePath, path.sep);
 

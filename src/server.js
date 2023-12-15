@@ -163,7 +163,7 @@ export async function serve(root = '.', opts = {}) {
     const [, stats] = await resolvePair(stat(path.join(root, pathname)));
 
     if (stats?.isDirectory()) {
-      c.header('Content-Type', 'text/html');
+      c.header('Content-Type', 'text/html; charset=utf-8');
       return c.body(Readable.from(createDirIndex(root, pathname)));
     }
 
@@ -215,7 +215,12 @@ function createLivereload(root, exts, { server }) {
     }));
   });
 
-  watch(root, { recursive: true }, (eventType, filename) => {
+  const ac = new AbortController();
+  const { signal } = ac;
+
+  server.on('close', () => ac.abort());
+
+  watch(root, { signal, recursive: true }, (eventType, filename) => {
     if (filename) {
       const ext = path.extname(filename).slice(1);
       if (exts.includes(ext)) {

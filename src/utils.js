@@ -24,7 +24,7 @@ export function isPortAvailable(port) {
       resolve(true);
     });
     socket.setTimeout(100);
-    socket.connect(port, 'localhost');
+    socket.connect(port, '0.0.0.0');
     socket.unref();
   });
 }

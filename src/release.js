@@ -7,11 +7,11 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { resolvePair, cmd } from './utils.js';
 
-const nodePath = path.resolve(process.argv[1]);
-const modulePath = path.resolve(fileURLToPath(import.meta.url));
-const isRunningDirectlyViaCLI = nodePath === modulePath;
+const pathToThisFile = path.resolve(fileURLToPath(import.meta.url));
+const pathPassedToNode = path.resolve(process.argv[1]);
+const isThisFileBeingRunViaCLI = pathToThisFile.includes(pathPassedToNode);
 
-if (isRunningDirectlyViaCLI) cliRelease();
+if (isThisFileBeingRunViaCLI) cliRelease();
 
 export async function cliRelease() {
 
@@ -55,7 +55,7 @@ export async function cliRelease() {
   });
 
   let [, version] = positionals;
-  await release(version, values);
+  return release(version, values);
 }
 
 export async function release(bump = 'conventional', opts) {
@@ -87,19 +87,19 @@ export async function release(bump = 'conventional', opts) {
   const version = await getVersion(bump, preid, opts);
   console.log(version);
 
-  await cmd(`npm --no-git-tag-version version ${version}`, opts);
+  await wetCmd(`npm --no-git-tag-version version ${version}`, opts);
 
   // Canaries don't have Git commits, Github releases or changelogs by default.
   if (prerelease !== 'canary') {
     if (opts.changelog) await commitChangelog(version, dryRun, opts);
 
-    await cmd(`npm --force --allow-same-version version ${version} -m "chore(release): %s"`, opts);
-    await cmd(`git push --follow-tags ${dryRun}`, opts);
+    await wetCmd(`npm --force --allow-same-version version ${version} -m "chore(release): %s"`, opts);
+    await wetCmd(`git push --follow-tags ${dryRun}`, opts);
 
     if (opts['github-release']) {
       // https://github.com/conventional-changelog/releaser-tools/tree/master/packages/conventional-github-releaser
       // Requires a CONVENTIONAL_GITHUB_RELEASER_TOKEN env variable
-      await cmd(`npx --yes conventional-github-releaser@3.1.5 -p angular`, opts);
+      await wetCmd(`npx --yes conventional-github-releaser@3.1.5 -p angular`, opts);
     }
   }
 
@@ -142,10 +142,22 @@ async function commitChangelog(version, dryRun, opts) {
 
   if (!exists) changelogCmd += ' -r 0';
 
-  await cmd(changelogCmd, opts);
+  await wetCmd(changelogCmd, opts);
+
+  if (await wetCmd(`git status --porcelain CHANGELOG.md`, opts) === '') {
+    console.log('No changes to CHANGELOG.md');
+    return;
+  }
 
   await cmd(`git add CHANGELOG.md ${dryRun}`, opts);
-  await cmd(`git commit -m "docs(CHANGELOG): ${version}" ${dryRun}`, opts);
+  await wetCmd(`git commit -m "docs(CHANGELOG): ${version}" ${dryRun}`, opts);
+}
+
+function wetCmd(command, opts) {
+  if (!opts['dry-run']) {
+    return cmd(command, opts);
+  }
+  console.log(command);
 }
 
 async function getpkg(key) {

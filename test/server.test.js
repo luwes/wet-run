@@ -1,4 +1,3 @@
-import process from 'node:process';
 import dns from 'node:dns';
 import assert from 'node:assert';
 import { test } from 'node:test';

@@ -21,11 +21,11 @@ import { serveStatic } from '@hono/node-server/serve-static';
 
 import { getFreePort, resolvePair, sizeToString, lastModifiedToString } from './utils.js';
 
-const nodePath = path.resolve(argv[1]);
-const modulePath = path.resolve(fileURLToPath(import.meta.url));
-const isRunningDirectlyViaCLI = nodePath === modulePath;
+const pathToThisFile = path.resolve(fileURLToPath(import.meta.url));
+const pathPassedToNode = path.resolve(argv[1]);
+const isThisFileBeingRunViaCLI = pathToThisFile.includes(pathPassedToNode);
 
-if (isRunningDirectlyViaCLI) cliServe();
+if (isThisFileBeingRunViaCLI) cliServe();
 
 export async function cliServe() {
 
@@ -66,7 +66,7 @@ export async function cliServe() {
   });
 
   const [, dir] = positionals;
-  await serve(dir, values);
+  return serve(dir, values);
 }
 
 export async function serve(root = '.', opts = {}) {

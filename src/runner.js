@@ -7,11 +7,11 @@ import playwright from 'playwright-core';
 import { serve } from './server.js';
 import { cmd } from './utils.js';
 
-const nodePath = path.resolve(process.argv[1]);
-const modulePath = path.resolve(fileURLToPath(import.meta.url));
-const isRunningDirectlyViaCLI = nodePath === modulePath;
+const pathToThisFile = path.resolve(fileURLToPath(import.meta.url));
+const pathPassedToNode = path.resolve(process.argv[1]);
+const isThisFileBeingRunViaCLI = pathToThisFile.includes(pathPassedToNode);
 
-if (isRunningDirectlyViaCLI) cliRun();
+if (isThisFileBeingRunViaCLI) cliRun();
 
 export async function cliRun() {
 
@@ -60,7 +60,7 @@ export async function cliRun() {
   });
 
   const files = positionals.slice(1);
-  await run(files, values);
+  return run(files, values);
 }
 
 export async function run(files, opts) {
@@ -82,7 +82,8 @@ export async function run(files, opts) {
   };
 
   try {
-    const { url } = await serve(servedir, { port, cors });
+    const serveDetails = await serve(servedir, { port, cors });
+    const { url } = serveDetails;
 
     const brow = await playwright[browser].launch({
       channel: channels[browser],
@@ -127,7 +128,10 @@ export async function run(files, opts) {
     });
 
     await gotoWithTimeout(page, `${url}/${files.shift()}`, timeout);
-  } catch (err) {
+
+    return serveDetails;
+  }
+  catch (err) {
     console.error(err);
     process.exit(1);
   }

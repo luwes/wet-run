@@ -177,7 +177,7 @@ export async function serve(root = '.', opts = {}) {
     createServer: useSsl ? https.createServer : http.createServer,
     port,
     serverOptions,
-  })
+  });
 
   if (livereload) {
     createLivereload(root, livereloadExts, { port, server });
@@ -215,30 +215,45 @@ function createLivereload(root, exts, { server }) {
     }));
   });
 
-  const ac = new AbortController();
-  const { signal } = ac;
+  server.on('close', () => {
+    fileWatcher?.close();
 
-  server.on('close', () => ac.abort());
-
-  watch(root, { signal, recursive: true }, (eventType, filename) => {
-    if (filename) {
-      const ext = path.extname(filename).slice(1);
-      if (exts.includes(ext)) {
-        console.log(`  <-- WS  /${filename}`);
-
-        wss.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({
-              command: 'reload',
-              path: filename,
-              liveCSS: true,
-              liveImg: true,
-            }));
-          }
-        });
-      }
+    for (const client of wss.clients) {
+      client.close();
     }
+
+    wss.close();
   });
+
+  let fileWatcher;
+
+  try {
+    fileWatcher = watch(root, { recursive: true }, (eventType, filename) => {
+      if (filename) {
+        const ext = path.extname(filename).slice(1);
+        if (exts.includes(ext)) {
+          console.log(`  <-- WS  /${filename}`);
+
+          for (const client of wss.clients) {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(JSON.stringify({
+                command: 'reload',
+                path: filename,
+                liveCSS: true,
+                liveImg: true,
+              }));
+            }
+          }
+        }
+      }
+    });
+
+    fileWatcher.on('error', console.error);
+    fileWatcher.unref();
+  }
+  catch (err) {
+    console.error(err);
+  }
 }
 
 async function* createDirIndex(root, pathname) {

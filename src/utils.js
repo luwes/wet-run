@@ -1,24 +1,31 @@
-import http from 'node:http';
+import net from 'node:net';
 import child_process from 'node:child_process';
 import { promisify } from 'node:util';
 
 const exec = promisify(child_process.exec);
 
 export async function getFreePort(base = 8000) {
-  for (let port = base; port < base + 100; port++) {
+  for (let port = base; port < base + 10; port++) {
     if (await isPortAvailable(port)) return port;
   }
 }
 
 export function isPortAvailable(port) {
   return new Promise((resolve) => {
-    const tester = http
-      .createServer()
-      .once('error', () => resolve(false))
-      .once('listening', () =>
-        tester.once('close', () => resolve(true)).close()
-      )
-      .listen(port, '0.0.0.0');
+    let socket = new net.Socket();
+    socket.on('connect', () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.on('error', () => {
+      resolve(true);
+    });
+    socket.on('timeout', () => {
+      resolve(true);
+    });
+    socket.setTimeout(100);
+    socket.connect(port, 'localhost');
+    socket.unref();
   });
 }
 

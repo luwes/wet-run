@@ -1,3 +1,4 @@
+import process from 'node:process';
 import dns from 'node:dns';
 import assert from 'node:assert';
 import { test } from 'node:test';
@@ -85,6 +86,6 @@ await test('serves a html file with livereload script', async () => {
 });
 
 for (const server of servers) {
-  server.closeAllConnections();
   server.close();
+  server.closeAllConnections();
 }

@@ -16,6 +16,14 @@ let url = await addServe(`./test/fixtures/`, {
   redirect: ['public:public-folder.test/']
 });
 
+await test('serves a fallback favicon', async () => {
+  const response = await fetch(`${url}/favicon.ico`);
+  assert(response.ok);
+
+  const type = response.headers.get('content-type');
+  assert.equal(type, 'image/x-icon');
+});
+
 await test('serves a directory index', async () => {
   const response = await fetch(url);
 

@@ -30,7 +30,7 @@ await test('wet release patch --dry-run --changelog --github-release', async (t)
   assert(true);
 });
 
-await test('wet run', async (t) => {
+await test('wet run --coverage', async (t) => {
   await cmd(t.name);
   assert(true);
 });

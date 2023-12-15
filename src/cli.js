@@ -1,18 +1,18 @@
 #! /usr/bin/env node
 
 import { parseArgs } from 'node:util';
-import * as path from 'node:path';
 import { argv } from 'node:process';
+import { realpath } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url';
 import { cliServe } from './server.js';
 import { cliRun } from './runner.js';
 import { cliRelease } from './release.js';
 
-const pathToThisFile = path.resolve(fileURLToPath(import.meta.url));
-const pathPassedToNode = path.resolve(argv[1]);
-const isThisFileBeingRunViaCLI = pathToThisFile.includes(pathPassedToNode);
+const nodePath = await realpath(argv[1]);
+const modulePath = await realpath(fileURLToPath(import.meta.url));
+const isCLI = nodePath === modulePath;
 
-if (isThisFileBeingRunViaCLI) cli();
+if (isCLI) cli();
 
 export async function cli() {
 

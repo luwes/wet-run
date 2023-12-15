@@ -3,7 +3,7 @@ import * as https from 'node:https';
 import * as path from 'node:path';
 import { watch } from 'node:fs';
 import fs from 'node:fs';
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readdir, readFile, stat, realpath } from 'node:fs/promises';
 import { Readable } from 'node:stream';
 import { argv } from 'node:process';
 import { parseArgs } from 'node:util';
@@ -21,11 +21,11 @@ import { serveStatic } from '@hono/node-server/serve-static';
 
 import { getFreePort, resolvePair, sizeToString, lastModifiedToString } from './utils.js';
 
-const pathToThisFile = path.resolve(fileURLToPath(import.meta.url));
-const pathPassedToNode = path.resolve(argv[1]);
-const isThisFileBeingRunViaCLI = pathToThisFile.includes(pathPassedToNode);
+const nodePath = await realpath(argv[1]);
+const modulePath = await realpath(fileURLToPath(import.meta.url));
+const isCLI = nodePath === modulePath;
 
-if (isThisFileBeingRunViaCLI) cliServe();
+if (isCLI) cliServe();
 
 export async function cliServe() {
 

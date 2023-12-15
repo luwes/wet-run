@@ -1,3 +1,15 @@
+## [0.9.6](https://github.com/luwes/wet-run/compare/v0.9.5...v0.9.6) (2023-12-15)
+
+
+### Bug Fixes
+
+* add canary release test ([1853b4c](https://github.com/luwes/wet-run/commit/1853b4c9b708dfac2445500d8fd64baed61aed2b))
+* add isCli util ([e2ae3d2](https://github.com/luwes/wet-run/commit/e2ae3d29e6cb7e5388010af1b199eeded70a6bd5))
+* improve release dry-run + add more tests ([5b32518](https://github.com/luwes/wet-run/commit/5b3251859a62a409ffe1f68e58a68fc53bbc27a2))
+* isCLI condition ([0861d0a](https://github.com/luwes/wet-run/commit/0861d0a729b3bbcddf1f6bbd8b2a54d92c467f4f))
+
+
+
 ## [0.9.5](https://github.com/luwes/wet-run/compare/v0.9.4...v0.9.5) (2023-12-15)
 
 

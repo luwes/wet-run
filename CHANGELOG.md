@@ -1,5 +1,15 @@
 # [1.0.0](https://github.com/luwes/wet-run/compare/v1.0.0-canary.0...v1.0.0) (2023-12-16)
 
+### Breaking
+
+* change `wet run` to `wet test`
+
+
+### Features
+
+* add `from-package` release bump
+* support `from-package`, `from-git`
+
 
 ### Bug Fixes
 

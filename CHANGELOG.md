@@ -1,3 +1,12 @@
+# [1.0.0](https://github.com/luwes/wet-run/compare/v1.0.0-canary.0...v1.0.0) (2023-12-16)
+
+
+### Bug Fixes
+
+* test + cleanup ([7a62ccb](https://github.com/luwes/wet-run/commit/7a62ccbcf9d05677a02434a1acf8b7056b095014))
+
+
+
 ## [0.9.6](https://github.com/luwes/wet-run/compare/v0.9.5...v0.9.6) (2023-12-15)
 
 

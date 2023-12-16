@@ -15,7 +15,7 @@ npm i -D wet-run
 
 ## Serve
 
-Serve static files in current dir on port 8000.
+Serve static files in current dir on port 8000. (powered by 🔥 [Hono](https://github.com/honojs/hono))
 
 ```bash
 wet serve
@@ -27,7 +27,7 @@ wet serve
 
 ## Test Run
 
-Run tests in a real browser (playwright) on the `test/` path.
+Run tests in a real browser on the `test/` path. (powered by 🎭 [Playwright](https://github.com/microsoft/playwright/))
 
 ```bash
 wet test

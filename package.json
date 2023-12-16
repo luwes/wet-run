@@ -2,12 +2,15 @@
   "name": "wet-run",
   "version": "0.9.6",
   "description": "Minimal static server, TAP test runner and conventional release flow",
-  "repository": "luwes/wet-run",
   "author": "Wesley Luyten <me@wesleyluyten.com> (https://wesleyluyten.com)",
   "license": "MIT",
   "homepage": "https://github.com/luwes/wet-run#readme",
   "bugs": {
     "url": "https://github.com/luwes/wet-run/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luwes/wet-run.git"
   },
   "type": "module",
   "main": "src/index.js",

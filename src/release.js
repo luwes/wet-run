@@ -80,14 +80,20 @@ export async function release(bump = 'conventional', opts) {
   const version = await getVersion(bump, preid, opts);
   console.log(version);
 
-  await wetCmd(`npm --no-git-tag-version version ${version}`, opts);
+  if (bump !== 'from-package') {
+    await wetCmd(`npm --no-git-tag-version version ${version}`, opts);
+  }
 
   // Canaries don't have Git commits, Github releases or changelogs by default.
   if (prerelease !== 'canary') {
     if (opts.changelog) await commitChangelog(version, dryRun, opts);
 
-    await wetCmd(`npm --force --allow-same-version version ${version} -m "chore(release): %s"`, opts);
-    await wetCmd(`git push --follow-tags ${dryRun}`, opts);
+    const gitTag = await cmd(`git tag --list v${version}`, opts);
+
+    if (!gitTag) {
+      await wetCmd(`npm --force --allow-same-version version ${version} -m "chore(release): %s"`, opts);
+      await wetCmd(`git push --follow-tags ${dryRun}`, opts);
+    }
 
     if (opts['github-release']) {
       // https://github.com/conventional-changelog/releaser-tools/tree/master/packages/conventional-github-releaser
@@ -98,13 +104,19 @@ export async function release(bump = 'conventional', opts) {
 
   // Requires NODE_AUTH_TOKEN env variable
   await cmd(`npm publish ${flag({tag})} ${flag({provenance})} ${flag({access})} ${dryRun}`, opts);
+
+  return {
+    version,
+  };
 }
 
 async function getVersion(bump, preid, opts) {
+  const pkg = await getpkg();
+
+  if (bump === 'from-package') return pkg.version;
+
   const [, validVersion] = await resolvePair(cmd(`npx --yes semver@7.5.4 ${bump}`, opts));
   if (validVersion) return validVersion;
-
-  const pkg = await getpkg();
 
   if (preid || bump.startsWith('pre')) {
     return getPrereleaseVersion(pkg, bump, preid, opts);

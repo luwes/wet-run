@@ -45,7 +45,7 @@ Create a new patch release with a conventional changelog and Github release.
 wet release patch --changelog --github-release
 ```
 
-- Positional: `[<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease | from-git]`   
+- Positional: `[<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease | from-git | from-package]`   
 - Flags: `--prerelease`, `--preid`, `--tag`, `--access`, `--provenance`, `--changelog`, `--github-release`, `--dry-run`, `--verbose`  
 
 ### Continuous deployment (CD)

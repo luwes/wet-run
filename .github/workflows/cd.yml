@@ -57,3 +57,8 @@ jobs:
       - run: npm test
       - run: npm link # consumers should use npm link wet-run or below npx wet-run ...
       - run: wet release ${{ inputs.version }} ${{ inputs.dryrun && '--dry-run' || '' }} ${{ inputs.prerelease && format('--prerelease {0}', inputs.prerelease) || '' }} --provenance --changelog --github-release --verbose
+      - name: Get NPM version
+        id: npm-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+      - name: Released ${{ steps.npm-version.outputs.current-version}} ✨
+        run: echo ${{ steps.npm-version.outputs.current-version}}

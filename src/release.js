@@ -52,9 +52,9 @@ export function cliRelease() {
 }
 
 export async function release(bump = 'conventional', opts) {
-  console.log(`Creating a "${bump}" release!`);
-
   let { prerelease, preid, access, tag, provenance } = opts;
+
+  console.log(`Creating a ${bump}${prerelease ? ` ${prerelease}` : ''} release!`);
 
   const dryRun = opts['dry-run'] ? '--dry-run' : '';
 
@@ -78,10 +78,20 @@ export async function release(bump = 'conventional', opts) {
   }
 
   const version = await getVersion(bump, preid, opts);
-  console.log(version);
+  const pkg = await getpkg();
 
   if (bump !== 'from-package') {
-    await wetCmd(`npm --no-git-tag-version version ${version}`, opts);
+
+    if (version !== pkg.version) {
+      await wetCmd(`npm --no-git-tag-version version ${version}`, opts);
+      console.log(`${version}`);
+    }
+    else {
+      console.log(`${version} (no change)`);
+    }
+  }
+  else {
+    console.log(`${version} (from package)`);
   }
 
   // Canaries don't have Git commits, Github releases or changelogs by default.
@@ -111,6 +121,11 @@ export async function release(bump = 'conventional', opts) {
 }
 
 async function getVersion(bump, preid, opts) {
+
+  if (bump === 'from-git') {
+    return (await cmd(`git describe --abbrev=0 --tags`, opts)).replace(/^v/, '');
+  }
+
   const pkg = await getpkg();
 
   if (bump === 'from-package') return pkg.version;
@@ -122,7 +137,7 @@ async function getVersion(bump, preid, opts) {
     return getPrereleaseVersion(pkg, bump, preid, opts);
   }
 
-  return cmd(`npx --yes semver@7.5.4 ${pkg.version} -i ${bump}`, opts);
+  return semverIncrease(pkg.version, bump, '', opts);
 }
 
 async function getPrereleaseVersion(pkg, bump, preid, opts) {
@@ -136,7 +151,15 @@ async function getPrereleaseVersion(pkg, bump, preid, opts) {
   );
 
   const lastVersion = relevantVersions.length ? relevantVersions.pop() : pkg.version;
-  return cmd(`npx --yes semver@7.5.4 ${lastVersion} -i ${bump} ${flag({preid})}`, opts);
+  return semverIncrease(lastVersion, bump, flag({preid}), opts);
+}
+
+async function semverIncrease(currentVersion, bump, flags, opts) {
+
+  if (!['major', 'minor', 'patch', 'premajor', 'preminor', 'prepatch', 'prerelease'].includes(bump)) {
+    throw new Error(`Invalid version bump "${bump}"`);
+  }
+  return cmd(`npx --yes semver@7.5.4 ${currentVersion} -i ${bump} ${flags}`, opts);
 }
 
 async function commitChangelog(version, dryRun, opts) {

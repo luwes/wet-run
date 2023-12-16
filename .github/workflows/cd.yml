@@ -16,6 +16,8 @@ on:
         - minor
         - major
         - prerelease
+        - from-package
+        - from-git
       prerelease:
         type: choice
         description: Pre-release

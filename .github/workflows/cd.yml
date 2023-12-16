@@ -29,7 +29,7 @@ on:
         description: 'Dry-run'
         type: boolean
 
-run-name: Deploy ${{ inputs.version }} ${{ inputs.dryrun && '--dry-run' || '' }} --prerelease "${{ inputs.prerelease }}"
+run-name: Deploy ${{ inputs.version }} ${{ inputs.dryrun && '--dry-run' || '' }} ${{ inputs.prerelease && format('--prerelease {0}', inputs.prerelease) || '' }}
 
 jobs:
   deploy:
@@ -56,4 +56,4 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm link # consumers should use npm link wet-run or below npx wet-run ...
-      - run: wet release ${{ inputs.version }} ${{ inputs.dryrun && '--dry-run' || '' }} --prerelease "${{ inputs.prerelease }}" --provenance --changelog --github-release --verbose
+      - run: wet release ${{ inputs.version }} ${{ inputs.dryrun && '--dry-run' || '' }} ${{ inputs.prerelease && format('--prerelease {0}', inputs.prerelease) || '' }} --provenance --changelog --github-release --verbose

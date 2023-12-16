@@ -2,7 +2,7 @@
 
 import { parseArgs } from 'node:util';
 import { cliServe } from './server.js';
-import { cliRun } from './runner.js';
+import { cliTest } from './test.js';
 import { cliRelease } from './release.js';
 import { isCli } from './utils.js';
 
@@ -28,7 +28,7 @@ export async function cli() {
 
       wet serve . --port 8000 --cors --redirect /:/examples/
 
-      wet run ./test/test.html --servedir . --no-headless --timeout 5000
+      wet test ./test/test.html --servedir . --no-headless --timeout 5000
 
       wet release patch --changelog --github-release
     `;
@@ -40,6 +40,6 @@ export async function cli() {
   const [task] = positionals;
 
   if (task === 'serve') return cliServe();
-  if (task === 'run') return cliRun();
+  if (task === 'test') return cliTest();
   if (task === 'release') return cliRelease();
 }

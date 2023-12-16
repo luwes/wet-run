@@ -6,9 +6,9 @@ import playwright from 'playwright-core';
 import { serve } from './server.js';
 import { cmd, isCli } from './utils.js';
 
-if (await isCli(import.meta.url)) cliRun();
+if (await isCli(import.meta.url)) cliTest();
 
-export function cliRun() {
+export function cliTest() {
 
   const options = {
     coverage: {
@@ -55,10 +55,10 @@ export function cliRun() {
   });
 
   const files = positionals.slice(1);
-  return run(files, values);
+  return test(files, values);
 }
 
-export async function run(files, opts) {
+export async function test(files, opts) {
 
   if (!files?.[0]) files = ['test/'];
 

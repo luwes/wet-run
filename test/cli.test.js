@@ -35,7 +35,7 @@ await test('wet release minor --dry-run --prerelease canary', async (t) => {
   assert(true);
 });
 
-await test('wet run --coverage', async (t) => {
+await test('wet test --coverage', async (t) => {
   await cmd(t.name);
   assert(true);
 });

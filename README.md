@@ -30,7 +30,7 @@ wet serve
 Run tests in a real browser (playwright) on the `test/` path.
 
 ```bash
-wet run
+wet test
 ```
 
 - Positional: `<path>`  

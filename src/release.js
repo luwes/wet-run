@@ -120,27 +120,28 @@ export async function release(bump = 'conventional', opts) {
   };
 }
 
-async function getVersion(bump, preid, opts) {
+export async function getVersion(bump, preid, opts) {
 
   if (bump === 'from-git') {
     return (await cmd(`git describe --abbrev=0 --tags`, opts)).replace(/^v/, '');
   }
 
-  const pkg = await getpkg();
-
-  if (bump === 'from-package') return pkg.version;
+  if (bump === 'from-package') {
+    return (await getpkg()).version;
+  }
 
   const [, validVersion] = await resolvePair(cmd(`npx --yes semver@7.5.4 ${bump}`, opts));
   if (validVersion) return validVersion;
 
   if (preid || bump.startsWith('pre')) {
-    return getPrereleaseVersion(pkg, bump, preid, opts);
+    return getPrereleaseVersion(bump, preid, opts);
   }
 
-  return semverIncrease(pkg.version, bump, '', opts);
+  return semverIncrease((await getpkg()).version, bump, '', opts);
 }
 
-async function getPrereleaseVersion(pkg, bump, preid, opts) {
+export async function getPrereleaseVersion(bump, preid, opts) {
+  const pkg = await getpkg();
   const stringVersions = await cmd(`npm view ${pkg.name} versions --json`, opts);
   const versions = JSON.parse(stringVersions) ?? [];
 

@@ -4,6 +4,7 @@ import assert from 'node:assert';
 import { test } from 'node:test';
 import { setTimeout } from 'node:timers/promises'
 import { cli } from '../src/cli.js';
+import { getPrereleaseVersion } from '../src/release.js';
 import { cmd } from '../src/utils.js';
 
 dns.setDefaultResultOrder('ipv4first');
@@ -36,10 +37,9 @@ await test('wet release patch --dry-run --changelog --github-release', async (t)
   assert.equal(version, newVersion);
 });
 
-await test('wet release minor --dry-run --prerelease canary', async (t) => {
+await test('wet release preminor --dry-run --prerelease canary', async (t) => {
   const { version } = await cliCmd(t.name);
-  const pkgVersion = (await cmd('npm pkg get version', {})).slice(1, -1);
-  const newVersion = await cmd(`npx --yes semver@7.5.4 ${pkgVersion} -i preminor --preid canary`, {});
+  const newVersion = await getPrereleaseVersion('preminor', 'canary', {});
   assert.equal(version, newVersion);
 });
 

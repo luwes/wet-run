@@ -29,6 +29,8 @@ on:
         description: 'Dry-run'
         type: boolean
 
+run-name: Deploy ${{ inputs.version }} ${{ inputs.dryrun && '--dry-run' || '' }} --prerelease "${{ inputs.prerelease }}"
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

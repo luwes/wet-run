@@ -108,7 +108,12 @@ export async function release(bump = 'conventional', opts) {
     if (opts['github-release']) {
       // https://github.com/conventional-changelog/releaser-tools/tree/master/packages/conventional-github-releaser
       // Requires a CONVENTIONAL_GITHUB_RELEASER_TOKEN env variable
-      await wetCmd(`npx --yes conventional-github-releaser@3.1.5 -p angular`, opts);
+      try {
+        await wetCmd(`npx --yes conventional-github-releaser@3.1.5 -p angular`, opts);
+      } catch (err) {
+        console.log('Failed to create a Github release');
+        console.error(err);
+      }
     }
   }
 

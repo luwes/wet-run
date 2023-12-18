@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/luwes/wet-run/compare/v1.0.0...v1.0.1) (2023-12-18)
+
+
+### Bug Fixes
+
+* catch error on github release fail ([e6afaa0](https://github.com/luwes/wet-run/commit/e6afaa06945bb1aea1d861c95aa15191392607f0))
+
+
+
 # [1.0.0](https://github.com/luwes/wet-run/compare/v1.0.0-canary.0...v1.0.0) (2023-12-16)
 
 ### Breaking

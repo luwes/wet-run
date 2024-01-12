@@ -183,7 +183,8 @@ async function commitChangelog(version, dryRun, opts) {
     return;
   }
 
-  await cmd(`git add CHANGELOG.md ${dryRun}`, opts);
+  // Sometimes a publish is done from a git ignored folder, so we need to force-add.
+  await cmd(`git add --force CHANGELOG.md ${dryRun}`, opts);
   await wetCmd(`git commit -m "docs(CHANGELOG): ${version}" ${dryRun}`, opts);
 }
 

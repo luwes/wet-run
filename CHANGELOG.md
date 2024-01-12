@@ -1,3 +1,12 @@
+## [1.0.3](https://github.com/luwes/wet-run/compare/v1.0.2...v1.0.3) (2024-01-12)
+
+
+### Bug Fixes
+
+* git add dry run command failing ([1de5c05](https://github.com/luwes/wet-run/commit/1de5c0514bf0439aa98b41561b82df8b525fd259))
+
+
+
 ## [1.0.2](https://github.com/luwes/wet-run/compare/v1.0.1...v1.0.2) (2024-01-12)
 
 

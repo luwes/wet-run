@@ -1,3 +1,12 @@
+## [1.0.2](https://github.com/luwes/wet-run/compare/v1.0.1...v1.0.2) (2024-01-12)
+
+
+### Bug Fixes
+
+* changelog ignore folder bug ([f826553](https://github.com/luwes/wet-run/commit/f826553d07e4fcc9fc6be84cf45d7d23506ceef3))
+
+
+
 ## [1.0.1](https://github.com/luwes/wet-run/compare/v1.0.0...v1.0.1) (2023-12-18)
 
 

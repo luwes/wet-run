@@ -1,3 +1,12 @@
+# [1.1.0](https://github.com/luwes/wet-run/compare/v1.0.3...v1.1.0) (2024-02-15)
+
+
+### Features
+
+* **hono:** upgrade to v4 ([5375773](https://github.com/luwes/wet-run/commit/5375773a9c78b59d54f9c8a72fed7240c9475005))
+
+
+
 ## [1.0.3](https://github.com/luwes/wet-run/compare/v1.0.2...v1.0.3) (2024-01-12)
 
 

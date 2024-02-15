@@ -26,13 +26,13 @@
     "lint": "npx eslint src/*.js -c .eslintrc.json",
     "test": "npx -y c8@8.0.1 --src src --exclude 'test/**' node --test test/*.test.js",
     "coverage": "npx -y c8@8.0.1 report --reporter=text-lcov > ./coverage/lcov.info",
-    "dev": "node --watch --no-warnings src/cli"
+    "dev": "node --watch --no-warnings src/cli.js"
   },
   "dependencies": {
-    "@hono/node-server": "^1.3.3",
-    "hono": "^3.11.7",
-    "playwright-core": "^1.40.1",
-    "ws": "^8.15.1"
+    "@hono/node-server": "^1.7.0",
+    "hono": "^4.0.2",
+    "playwright-core": "^1.41.2",
+    "ws": "^8.16.0"
   },
   "engines": {
     "node": ">=18.3.0"

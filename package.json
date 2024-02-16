@@ -1,6 +1,6 @@
 {
   "name": "wet-run",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Minimal static server, TAP test runner and conventional release flow",
   "author": "Wesley Luyten <me@wesleyluyten.com> (https://wesleyluyten.com)",
   "license": "MIT",

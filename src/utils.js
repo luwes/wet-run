@@ -2,6 +2,7 @@ import { argv } from 'node:process';
 import { realpath } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url';
 import net from 'node:net';
+import { networkInterfaces } from 'node:os';
 import child_process from 'node:child_process';
 import { promisify } from 'node:util';
 
@@ -11,6 +12,18 @@ export async function isCli(metaUrl) {
   const nodePath = await realpath(argv[1]);
   const modulePath = await realpath(fileURLToPath(metaUrl));
   return nodePath === modulePath;
+}
+
+export function getNetworkAddress() {
+  const interfaces = networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const ifc of interfaces[name]) {
+      const { address, family, internal } = ifc;
+      if (family === 'IPv4' && !internal) {
+        return address;
+      }
+    }
+  }
 }
 
 export async function getFreePort(base = 8000) {
@@ -41,12 +54,16 @@ export function isPortAvailable(port) {
 export async function cmd(command, opts) {
   command = command.trim().replace(/\s+/g, ' ');
 
-  if (opts.verbose) console.log(`${command}`);
+  if (opts['log-level'] === 'verbose') {
+    console.log(`${command}`);
+  }
 
   const { stdout, stderr } = await exec(command);
 
   if (stderr) {
-    console.error(`\n${stderr}`);
+    if (opts['log-level'] !== 'silent') {
+      console.error(`\n${stderr}`);
+    }
   }
 
   return stdout.trim();

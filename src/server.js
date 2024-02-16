@@ -18,7 +18,8 @@ import { getMimeType } from 'hono/utils/mime';
 import { serve as honoServe } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 
-import { isCli, getFreePort, resolvePair, sizeToString, lastModifiedToString } from './utils.js';
+import { isCli, getFreePort, resolvePair, sizeToString,
+  lastModifiedToString, getNetworkAddress } from './utils.js';
 
 if (await isCli(import.meta.url)) cliServe();
 
@@ -49,6 +50,10 @@ export function cliServe() {
     },
     'ssl-pass': {
       type: 'string',
+    },
+    'log-level': {
+      type: 'string',
+      default: 'info',
     },
   };
 
@@ -104,7 +109,10 @@ export async function serve(root = '.', opts = {}) {
 
   const app = new Hono();
   app.use('*', etag());
-  app.use('*', logger());
+
+  if (['info', 'verbose'].includes(opts['log-level'])) {
+    app.use('*', logger());
+  }
 
   if (cors) app.use('*', honoCors());
 
@@ -175,12 +183,17 @@ export async function serve(root = '.', opts = {}) {
   });
 
   if (livereload) {
-    createLivereload(root, livereloadExts, { port, server });
+    createLivereload(root, livereloadExts, { port, server, opts });
   }
 
   const protocol = useSsl ? 'https' : 'http';
   const url = `${protocol}://localhost:${port}`;
-  console.log(`Server running at ${url}\n`);
+  const publicUrl = `${protocol}://${getNetworkAddress()}:${port}`;
+
+  if (opts['log-level'] !== 'silent') {
+    console.log(`  Local:    ${url}`);
+    console.log(`  Network:  ${publicUrl}\n`);
+  }
 
   return {
     server,
@@ -189,19 +202,24 @@ export async function serve(root = '.', opts = {}) {
   };
 }
 
-function createLivereload(root, exts, { server }) {
+function createLivereload(root, exts, { server, opts }) {
 
   const wss = new WebSocketServer({
     server,
   });
 
   wss.on('connection', (ws) => {
-    ws.on('error', console.error);
+
+    if (opts['log-level'] !== 'silent') {
+      ws.on('error', console.error);
+    }
 
     ws.on('message', (data) => {
       const message = JSON.parse(data);
       if (message.command === 'hello') {
-        console.log('Livereload client connected');
+        if (['verbose'].includes(opts['log-level'])) {
+          console.log('Livereload client connected');
+        }
       }
     });
 
@@ -227,7 +245,10 @@ function createLivereload(root, exts, { server }) {
       if (filename) {
         const ext = path.extname(filename).slice(1);
         if (exts.includes(ext)) {
-          console.log(`  <-- WS  /${filename}`);
+
+          if (['info', 'verbose'].includes(opts['log-level'])) {
+            console.log(`  <-- WS  /${filename}`);
+          }
 
           for (const client of wss.clients) {
             if (client.readyState === WebSocket.OPEN) {
@@ -243,11 +264,15 @@ function createLivereload(root, exts, { server }) {
       }
     });
 
-    fileWatcher.on('error', console.error);
+    if (opts['log-level'] !== 'silent') {
+      fileWatcher.on('error', console.error);
+    }
     fileWatcher.unref();
   }
   catch (err) {
-    console.error(err);
+    if (opts['log-level'] !== 'silent') {
+      console.error(err);
+    }
   }
 }
 

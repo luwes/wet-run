@@ -41,8 +41,9 @@ export function cliTest() {
     timeout: {
       type: 'string',
     },
-    verbose: {
-      type: 'boolean',
+    'log-level': {
+      type: 'string',
+      default: 'info',
     },
   };
 

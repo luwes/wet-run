@@ -23,7 +23,7 @@ wet serve
 
 - Positional: `<path>`  
 - Flags: `--port`, `--cors`, `--redirect`, `--livereload`, `--ssl-cert`,
-`--ssl-key`, `--ssl-pass`
+`--ssl-key`, `--ssl-pass`, `--log-level`
 
 ## Test Run
 
@@ -35,7 +35,7 @@ wet test
 
 - Positional: `<path>`  
 - Flags: `--port`, `--cors`, `--redirect`, `--servedir`, `--browser`, 
-`--channel`, `--no-headless`, `--timeout`, `--coverage`
+`--channel`, `--no-headless`, `--timeout`, `--coverage`, `--log-level`
 
 ## Release
 
@@ -46,7 +46,8 @@ wet release patch --changelog --github-release
 ```
 
 - Positional: `[<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease | from-git | from-package]`   
-- Flags: `--prerelease`, `--preid`, `--tag`, `--access`, `--provenance`, `--changelog`, `--github-release`, `--dry-run`, `--verbose`  
+- Flags: `--prerelease`, `--preid`, `--tag`, `--access`, `--provenance`, `--changelog`, `--github-release`, `--dry-run`, `--log-level`  
+
 
 ### Continuous deployment (CD)
 

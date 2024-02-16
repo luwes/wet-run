@@ -34,8 +34,9 @@ export function cliRelease() {
     'dry-run': {
       type: 'boolean',
     },
-    verbose: {
-      type: 'boolean',
+    'log-level': {
+      type: 'string',
+      default: 'info',
     },
   };
 
@@ -54,7 +55,7 @@ export function cliRelease() {
 export async function release(bump = 'conventional', opts) {
   let { prerelease, preid, access, tag, provenance } = opts;
 
-  console.log(`Creating a ${bump}${prerelease ? ` ${prerelease}` : ''} release!`);
+  log(`Creating a ${bump}${prerelease ? ` ${prerelease}` : ''} release!`, opts);
 
   const dryRun = opts['dry-run'] ? '--dry-run' : '';
 
@@ -84,14 +85,14 @@ export async function release(bump = 'conventional', opts) {
 
     if (version !== pkg.version) {
       await wetCmd(`npm --no-git-tag-version version ${version}`, opts);
-      console.log(`${version}`);
+      log(`${version}`, opts);
     }
     else {
-      console.log(`${version} (no change)`);
+      log(`${version} (no change)`, opts);
     }
   }
   else {
-    console.log(`${version} (from package)`);
+    log(`${version} (from package)`, opts);
   }
 
   // Canaries don't have Git commits, Github releases or changelogs by default.
@@ -111,8 +112,10 @@ export async function release(bump = 'conventional', opts) {
       try {
         await wetCmd(`npx --yes conventional-github-releaser@3.1.5 -p angular`, opts);
       } catch (err) {
-        console.log('Failed to create a Github release');
-        console.error(err);
+        if (opts['log-level'] !== 'silent') {
+          log('Failed to create a Github release', opts);
+          console.error(err);
+        }
       }
     }
   }
@@ -179,7 +182,7 @@ async function commitChangelog(version, dryRun, opts) {
   await wetCmd(changelogCmd, opts);
 
   if (await wetCmd(`git status --porcelain CHANGELOG.md`, opts) === '') {
-    console.log('No changes to CHANGELOG.md');
+    log('No changes to CHANGELOG.md', opts);
     return;
   }
 
@@ -192,7 +195,13 @@ function wetCmd(command, opts) {
   if (!opts['dry-run']) {
     return cmd(command, opts);
   }
-  console.log(command);
+  log(command, opts);
+}
+
+function log(msg, opts = {}) {
+  if (['info', 'verbose'].includes(opts['log-level'])) {
+    console.log(msg);
+  }
 }
 
 async function getpkg(key) {

@@ -9,6 +9,11 @@ websocket.onmessage = (event) => {
   let { data } = event;
   let { command } = JSON.parse(data);
 
+  if (command === 'hello') {
+    websocket.send(JSON.stringify({ command: 'hello' }));
+    return;
+  }
+
   if (command === 'reload') {
     globalThis.location.reload();
   }

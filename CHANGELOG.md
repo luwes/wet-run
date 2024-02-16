@@ -1,3 +1,12 @@
+# [1.2.0](https://github.com/luwes/wet-run/compare/v1.1.0...v1.2.0) (2024-02-16)
+
+
+### Features
+
+* add `--log-level` flag ([0f1eb73](https://github.com/luwes/wet-run/commit/0f1eb73487d8234d1b4fa7c5f25565885d627b0c))
+
+
+
 # [1.1.0](https://github.com/luwes/wet-run/compare/v1.0.3...v1.1.0) (2024-02-15)
 
 

@@ -1,3 +1,12 @@
+## [1.2.1](https://github.com/luwes/wet-run/compare/v1.2.0...v1.2.1) (2024-04-08)
+
+
+### Bug Fixes
+
+* upgrade dependencies Hono & Playwright ([fe271e1](https://github.com/luwes/wet-run/commit/fe271e153298702b6a85cfa0e4a01b707e336a01))
+
+
+
 # [1.2.0](https://github.com/luwes/wet-run/compare/v1.1.0...v1.2.0) (2024-02-16)
 
 

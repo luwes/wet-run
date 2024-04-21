@@ -29,9 +29,9 @@
     "dev": "node --watch --no-warnings src/cli.js"
   },
   "dependencies": {
-    "@hono/node-server": "^1.9.1",
-    "hono": "^4.2.2",
-    "playwright-core": "^1.43.0",
+    "@hono/node-server": "^1.11.0",
+    "hono": "^4.2.5",
+    "playwright-core": "^1.43.1",
     "ws": "^8.16.0"
   },
   "engines": {

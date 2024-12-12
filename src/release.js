@@ -168,6 +168,13 @@ async function semverIncrease(currentVersion, bump, flags, opts) {
   if (!['major', 'minor', 'patch', 'premajor', 'preminor', 'prepatch', 'prerelease'].includes(bump)) {
     throw new Error(`Invalid version bump "${bump}"`);
   }
+
+  const preparts = currentVersion.split('-'); // e.g. 0.2.5-beta.2-c771934
+  if (preparts.length > 2) {
+    preparts.pop();
+    currentVersion = preparts.join('-');      // e.g. 0.2.5-beta.2
+  }
+
   return cmd(`npx --yes semver@7.5.4 ${currentVersion} -i ${bump} ${flags}`, opts);
 }
 

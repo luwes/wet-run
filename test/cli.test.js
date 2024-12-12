@@ -4,7 +4,7 @@ import assert from 'node:assert';
 import { test } from 'node:test';
 import { setTimeout } from 'node:timers/promises'
 import { cli } from '../src/cli.js';
-import { getPrereleaseVersion } from '../src/release.js';
+import { getPrereleaseVersion, getLastVersion } from '../src/release.js';
 import { cmd } from '../src/utils.js';
 
 dns.setDefaultResultOrder('ipv4first');
@@ -19,6 +19,28 @@ const cliCmd = async (command) => {
   if (out?.server) servers.push(out.server);
   return out;
 }
+
+const versions = [
+  '0.2.4',
+  '0.2.3',
+  '0.2.5-beta.2',
+  '0.2.5-beta.2-c771934',
+  '0.2.5-beta.101',
+  '0.2.5-beta.100',
+  '0.2.5-beta.99-c771934',
+  '0.2.4-beta.200',
+  '0.3.0-canary.0',
+];
+
+await test('getLastVersion', async () => {
+  const lastVersion = getLastVersion(versions);
+  assert.equal(lastVersion, '0.2.4');
+});
+
+await test('getLastVersion preid', async () => {
+  const lastVersion = getLastVersion(versions, 'beta');
+  assert.equal(lastVersion, '0.2.5-beta.101');
+});
 
 await test('wet --help', async (t) => {
   const out = await cliCmd(t.name);

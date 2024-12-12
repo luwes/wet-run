@@ -3,24 +3,24 @@
 import * as fs from 'node:fs';
 import { parseArgs } from 'node:util';
 import { isCli, resolvePair, cmd } from './utils.js';
+import { sort } from 'semver';
 
 if (await isCli(import.meta.url)) cliRelease();
 
 export function cliRelease() {
-
   const options = {
     prerelease: {
-      type: 'string'
+      type: 'string',
     },
     preid: {
-      type: 'string'
+      type: 'string',
     },
     tag: {
-      type: 'string'
+      type: 'string',
     },
     access: {
       type: 'string',
-      default: 'public'
+      default: 'public',
     },
     provenance: {
       type: 'boolean',
@@ -40,12 +40,9 @@ export function cliRelease() {
     },
   };
 
-  const {
-    values,
-    positionals,
-  } = parseArgs({
+  const { values, positionals } = parseArgs({
     options,
-    allowPositionals: true
+    allowPositionals: true,
   });
 
   let [, version] = positionals;
@@ -70,28 +67,28 @@ export async function release(bump = 'conventional', opts) {
   }
 
   if (bump === 'conventional') {
-    bump = await cmd(`
+    bump = await cmd(
+      `
       npx --yes
         -p conventional-changelog-angular@7.0.0
         -p conventional-recommended-bump@9.0.0
         -c 'conventional-recommended-bump -p angular'
-    `, opts);
+    `,
+      opts
+    );
   }
 
   const version = await getVersion(bump, preid, opts);
   const pkg = await getpkg();
 
   if (bump !== 'from-package') {
-
     if (version !== pkg.version) {
       await wetCmd(`npm --no-git-tag-version version ${version}`, opts);
       log(`${version}`, opts);
-    }
-    else {
+    } else {
       log(`${version} (no change)`, opts);
     }
-  }
-  else {
+  } else {
     log(`${version} (from package)`, opts);
   }
 
@@ -102,7 +99,10 @@ export async function release(bump = 'conventional', opts) {
     const gitTag = await cmd(`git tag --list v${version}`, opts);
 
     if (!gitTag) {
-      await wetCmd(`npm --force --allow-same-version version ${version} -m "chore(release): %s"`, opts);
+      await wetCmd(
+        `npm --force --allow-same-version version ${version} -m "chore(release): %s"`,
+        opts
+      );
       await wetCmd(`git push --follow-tags ${dryRun}`, opts);
     }
 
@@ -121,7 +121,10 @@ export async function release(bump = 'conventional', opts) {
   }
 
   // Requires NODE_AUTH_TOKEN env variable
-  await cmd(`npm publish ${flag({tag})} ${flag({provenance})} ${flag({access})} ${dryRun}`, opts);
+  await cmd(
+    `npm publish ${flag({ tag })} ${flag({ provenance })} ${flag({ access })} ${dryRun}`,
+    opts
+  );
 
   return {
     version,
@@ -129,7 +132,6 @@ export async function release(bump = 'conventional', opts) {
 }
 
 export async function getVersion(bump, preid, opts) {
-
   if (bump === 'from-git') {
     return (await cmd(`git describe --abbrev=0 --tags`, opts)).replace(/^v/, '');
   }
@@ -152,29 +154,38 @@ export async function getPrereleaseVersion(bump, preid, opts) {
   const pkg = await getpkg();
   const stringVersions = await cmd(`npm view ${pkg.name} versions --json`, opts);
   const versions = JSON.parse(stringVersions) ?? [];
+  const lastVersion = getLastVersion(versions, preid) ?? pkg.version;
+  return semverIncrease(lastVersion, bump, flag({ preid }), opts);
+}
 
-  const relevantVersions = versions.filter(v =>
-    !v.includes('-')                       // e.g. 0.2.5
-    || (preid && v.includes(`-${preid}.`)) // e.g. 0.2.5-beta.2
-    || (!preid && /-[0-9]/.test(v))        // e.g. 0.2.5-1
-  );
+export function getLastVersion(versions, preid) {
+  const relevantVersions = versions
+    .filter(
+      (v) =>
+        !v.includes('-') || // e.g. 0.2.5
+        (preid && v.includes(`-${preid}.`)) || // e.g. 0.2.5-beta.2
+        (!preid && /-[0-9]/.test(v)) // e.g. 0.2.5-1
+    )
+    .map(removeSHA);
 
-  const lastVersion = relevantVersions.length ? relevantVersions.pop() : pkg.version;
-  return semverIncrease(lastVersion, bump, flag({preid}), opts);
+  return relevantVersions.length ? sort(relevantVersions).pop() : undefined;
+}
+
+function removeSHA(version) {
+  const preparts = version.split('-'); // e.g. 0.2.5-beta.2-c771934
+  if (preparts.length > 2) {
+    preparts.pop();
+    return preparts.join('-'); // e.g. 0.2.5-beta.2
+  }
+  return version;
 }
 
 async function semverIncrease(currentVersion, bump, flags, opts) {
-
-  if (!['major', 'minor', 'patch', 'premajor', 'preminor', 'prepatch', 'prerelease'].includes(bump)) {
+  if (
+    !['major', 'minor', 'patch', 'premajor', 'preminor', 'prepatch', 'prerelease'].includes(bump)
+  ) {
     throw new Error(`Invalid version bump "${bump}"`);
   }
-
-  const preparts = currentVersion.split('-'); // e.g. 0.2.5-beta.2-c771934
-  if (preparts.length > 2) {
-    preparts.pop();
-    currentVersion = preparts.join('-');      // e.g. 0.2.5-beta.2
-  }
-
   return cmd(`npx --yes semver@7.5.4 ${currentVersion} -i ${bump} ${flags}`, opts);
 }
 
@@ -188,7 +199,7 @@ async function commitChangelog(version, dryRun, opts) {
 
   await wetCmd(changelogCmd, opts);
 
-  if (await wetCmd(`git status --porcelain CHANGELOG.md`, opts) === '') {
+  if ((await wetCmd(`git status --porcelain CHANGELOG.md`, opts)) === '') {
     log('No changes to CHANGELOG.md', opts);
     return;
   }

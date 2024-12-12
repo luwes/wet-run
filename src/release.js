@@ -205,7 +205,7 @@ function log(msg, opts = {}) {
 }
 
 async function getpkg(key) {
-  const pkg = JSON.parse(await cmd(`npm pkg get`, {}));
+  const pkg = JSON.parse(await cmd(`npm pkg get --no-workspaces`, {}));
   return key ? pkg[key] : pkg;
 }
 

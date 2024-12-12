@@ -1,3 +1,12 @@
+## [1.2.3](https://github.com/luwes/wet-run/compare/v1.2.2...v1.2.3) (2024-12-12)
+
+
+### Bug Fixes
+
+* support exec via workspaces ([#6](https://github.com/luwes/wet-run/issues/6)) ([7021a4e](https://github.com/luwes/wet-run/commit/7021a4e70234bd55ab4af3b5e07c6509cce25088))
+
+
+
 ## [1.2.2](https://github.com/luwes/wet-run/compare/v1.2.1...v1.2.2) (2024-04-21)
 
 

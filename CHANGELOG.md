@@ -1,3 +1,12 @@
+## [1.2.5](https://github.com/luwes/wet-run/compare/v1.2.4...v1.2.5) (2024-12-12)
+
+
+### Bug Fixes
+
+* preid ordering bug ([1fd2bd0](https://github.com/luwes/wet-run/commit/1fd2bd03f1239bc6b3b22378e8fd6758f1a2b3d6))
+
+
+
 ## [1.2.4](https://github.com/luwes/wet-run/compare/v1.2.3...v1.2.4) (2024-12-12)
 
 

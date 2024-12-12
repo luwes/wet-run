@@ -1,3 +1,12 @@
+## [1.2.4](https://github.com/luwes/wet-run/compare/v1.2.3...v1.2.4) (2024-12-12)
+
+
+### Bug Fixes
+
+* bump prerelease with SHA hashes ([e9fe16c](https://github.com/luwes/wet-run/commit/e9fe16c1f551c3177b136a7ea2c9e01ea6c21e45))
+
+
+
 ## [1.2.3](https://github.com/luwes/wet-run/compare/v1.2.2...v1.2.3) (2024-12-12)
 
 
